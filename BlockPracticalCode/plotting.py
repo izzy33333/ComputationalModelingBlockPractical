@@ -8,8 +8,8 @@ pio.templates.default = "none"
 # this allows us to make interactive figures
 import ipywidgets as widgets
 
-# get the modeling scripts we wrote
-from . import modeling
+# # get the modeling scripts we wrote
+# from . import modeling
 
 def plot_schedule(
     *,
@@ -141,77 +141,77 @@ def plot_schedule(
 
   return fig
 
-def plot_interative_schedule(
-      opt1Rewarded,
-      trueProbability
-    ):
-    # this initiates some sliders that can be used to dynamically change parameter values
-    alphaSlider        = widgets.FloatSlider(
-                                    value=0.1,
-                                    max=1,
-                                    min=0.001,
-                                    step=0.01,
-                                    description='alpha:',
-                                    continuous_update=False
-                                    )
+# def plot_interative_schedule(
+#       opt1Rewarded,
+#       trueProbability
+#     ):
+#     # this initiates some sliders that can be used to dynamically change parameter values
+#     alphaSlider        = widgets.FloatSlider(
+#                                     value=0.1,
+#                                     max=1,
+#                                     min=0.001,
+#                                     step=0.01,
+#                                     description='alpha:',
+#                                     continuous_update=False
+#                                     )
 
-    startingProbSlider = widgets.FloatSlider(
-                                    value=0.5,
-                                    max=1,
-                                    min=0,
-                                    step =0.01,
-                                    description='startingProb:',
-                                    continuous_update=False
-                                    )
-    trueProbSlider     = widgets.FloatSlider(
-                                    value=0.8,
-                                    max=1,
-                                    description='trueProb:',
-                                    continuous_update=False
-                                    )
+#     startingProbSlider = widgets.FloatSlider(
+#                                     value=0.5,
+#                                     max=1,
+#                                     min=0,
+#                                     step =0.01,
+#                                     description='startingProb:',
+#                                     continuous_update=False
+#                                     )
+#     trueProbSlider     = widgets.FloatSlider(
+#                                     value=0.8,
+#                                     max=1,
+#                                     description='trueProb:',
+#                                     continuous_update=False
+#                                     )
 
-    sliders = widgets.VBox(children=[alphaSlider,
-                                    startingProbSlider,
-                                    trueProbSlider])
+#     sliders = widgets.VBox(children=[alphaSlider,
+#                                     startingProbSlider,
+#                                     trueProbSlider])
 
-    # call the figure function we wrote and make it interactive
-    fig = go.FigureWidget(plot_schedule(opt1Rewarded,trueProbability,probOpt1))
+#     # call the figure function we wrote and make it interactive
+#     fig = go.FigureWidget(plot_schedule(opt1Rewarded,trueProbability,probOpt1))
 
-    # function to run if alpha or startingProb have changed
-    def change_model(change):
-        # get current values
-        opt1Rewarded = fig.data[0].y
-        trueProbability = trueProbSlider.value
-        # rerun the RL model
-        probOpt1 = modeling.simulate_RL_model(
-           opt1Rewarded,
-           None,
-           None,
-           alphaSlider.value,
-           None,
-           startingProb = startingProbSlider.value
-           )
-        # update the figure
-        with fig.batch_update():
-            fig.data[2].y = probOpt1
+#     # function to run if alpha or startingProb have changed
+#     def change_model(change):
+#         # get current values
+#         opt1Rewarded = fig.data[0].y
+#         trueProbability = trueProbSlider.value
+#         # rerun the RL model
+#         probOpt1 = modeling.simulate_RL_model(
+#            opt1Rewarded,
+#            None,
+#            None,
+#            alphaSlider.value,
+#            None,
+#            startingProb = startingProbSlider.value
+#            )
+#         # update the figure
+#         with fig.batch_update():
+#             fig.data[2].y = probOpt1
 
-    # function to run if trueProbability has changed
-    def change_schedule(change):
-        # generate a new schedule
-        trueProbability = np.ones(nTrials, dtype = float)*trueProbSlider.value
-        opt1Rewarded = generate_schedule(trueProbability)
-        # rerun the RL model
-        probOpt1 = RL_model(opt1Rewarded,alphaSlider.value,startingProbSlider.value)
-        # update the figure
-        with fig.batch_update():
-            fig.data[0].y = opt1Rewarded
-            fig.data[1].y = trueProbability
-            fig.data[2].y = probOpt1
+#     # function to run if trueProbability has changed
+#     def change_schedule(change):
+#         # generate a new schedule
+#         trueProbability = np.ones(nTrials, dtype = float)*trueProbSlider.value
+#         opt1Rewarded = generate_schedule(trueProbability)
+#         # rerun the RL model
+#         probOpt1 = RL_model(opt1Rewarded,alphaSlider.value,startingProbSlider.value)
+#         # update the figure
+#         with fig.batch_update():
+#             fig.data[0].y = opt1Rewarded
+#             fig.data[1].y = trueProbability
+#             fig.data[2].y = probOpt1
 
-    # run the functions if a slider value changes
-    alphaSlider.observe(change_model, names="value")
-    startingProbSlider.observe(change_model, names="value")
-    trueProbSlider.observe(change_schedule, names="value")
+#     # run the functions if a slider value changes
+#     alphaSlider.observe(change_model, names="value")
+#     startingProbSlider.observe(change_model, names="value")
+#     trueProbSlider.observe(change_schedule, names="value")
 
-    # show the figure and the sliders
-    display(widgets.VBox([sliders, fig]))
+#     # show the figure and the sliders
+#     display(widgets.VBox([sliders, fig]))
