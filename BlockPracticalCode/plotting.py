@@ -7,6 +7,7 @@ pio.templates.default = "none"
 
 
 def plot_schedule(
+    *,
     opt1Rewarded,
     trueProbability,
     magOpt1     = None,
