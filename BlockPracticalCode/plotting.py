@@ -6,7 +6,7 @@ import plotly.express as px
 pio.templates.default = "none"
 
 # this allows us to make interactive figures
-import ipywidgets as widgets
+# import ipywidgets as widgets
 
 # # get the modeling scripts we wrote
 # from . import modeling
