@@ -34,7 +34,7 @@ def plot_schedule(
         
         choice1(int array): whether option 1 (1) or option 2 (2) was chosen on each. Defaults to None, which excludes it from the plot.
   '''
-  
+
   # compute number of trials
   nTrials = len(opt1Rewarded)
 
@@ -130,6 +130,7 @@ def plot_schedule(
   # this sets the range for all x-axes
   fig.update_xaxes(range=[0, nTrials])
   # this is needed to set the range for the second subplot if it exists
-  fig.update_xaxes(range=[0, nTrials], row=2, col=1)
+  if magOpt1 is not None:
+    fig.update_xaxes(range=[0, nTrials], row=2, col=1)
 
   return fig
