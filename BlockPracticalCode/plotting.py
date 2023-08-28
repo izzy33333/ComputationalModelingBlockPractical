@@ -9,7 +9,7 @@ pio.templates.default = "none"
 import ipywidgets as widgets
 
 # get the modeling scripts we wrote
-from . import modeling
+# from . import modeling
 
 def plot_schedule(
     *,
