@@ -1,3 +1,15 @@
+# we use plotly to make our figures
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import plotly.io as pio
+import plotly.express as px
+
+# set the style of the plotly figures
+pio.templates.default = "none"
+
+# this allows us to make interactive figures
+import ipywidgets as widgets
+
 def plot_schedule(opt1Rewarded, trueProbability, probOpt1 = None):
   '''
   Plots the experimental schedule and the RL model estimate.
