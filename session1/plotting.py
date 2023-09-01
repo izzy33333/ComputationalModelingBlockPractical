@@ -208,9 +208,6 @@ def plot_RL_weights():
   # label the axes
   fig.update_layout(xaxis_title="delay (trials)", yaxis_title="weight")
 
-  # set the range for the y-axis
-  fig.update_yaxes(range=[0, 1])
-
   # function that triggers when the alpha value changes
   def change_alpha(change):
     # get the current value of alpha
