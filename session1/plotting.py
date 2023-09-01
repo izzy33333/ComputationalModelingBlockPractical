@@ -1,3 +1,6 @@
+# numpy is a libarary used to do all kinds of mathematical operations
+import numpy as np
+
 # we use plotly to make our figures
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -70,7 +73,7 @@ def plot_schedule(opt1Rewarded, trueProbability, probOpt1 = None):
 
   return fig
 
-def plot_interactive_RL_model(opt1Rewarded, trueProbability, probOpt1, RL_model):
+def plot_interactive_RL_model(opt1Rewarded, trueProbability, RL_model):
   '''
   Plots the experimental schedule and the RL model estimate with sliders to
   change the model parameters.
@@ -80,8 +83,6 @@ def plot_interactive_RL_model(opt1Rewarded, trueProbability, probOpt1, RL_model)
           option 2 is rewarded on a trial.
         trueProbability(float array): The probability with which option 1 is
           rewareded on each trial.
-        probOpt1(float array): how likely option 1 is rewarded on each trial
-          according to the RL model. 
         RL_model(function): the RL model function to use to generate probOpt1.
   '''
 
@@ -113,6 +114,8 @@ def plot_interactive_RL_model(opt1Rewarded, trueProbability, probOpt1, RL_model)
   sliders = widgets.VBox(children=[alphaSlider,
                                   startingProbSlider,
                                   trueProbSlider])
+  
+  probOpt1 = RL_model(opt1Rewarded,alphaSlider.value,startingProbSlider.value)
 
   # call the figure function we wrote and make it interactive
   fig = go.FigureWidget(plot_schedule(opt1Rewarded,trueProbability,probOpt1))
