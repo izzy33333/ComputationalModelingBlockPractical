@@ -173,7 +173,14 @@ def plot_interactive_RL_model(
   display(widgets.VBox([sliders, fig]))
 
 
-def plot_RL_weights():
+def plot_RL_weights(T = 10):
+  '''
+  Plots the RL weights values of alpha.
+  
+      Parameters:
+          T(int): the number of trials back to plot the weights for.
+  '''
+  
   # get a slider for alpha
   alphaSlider = widgets.FloatSlider(
                               value=0.1,
@@ -183,9 +190,6 @@ def plot_RL_weights():
                               description='alpha:',
                               continuous_update=False)
 
-
-  # how many trials back to display
-  T = 10
 
   # this function computes the weights for a given alpha
   def compute_weights(alpha):
