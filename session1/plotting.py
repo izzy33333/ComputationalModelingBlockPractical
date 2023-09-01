@@ -200,7 +200,7 @@ def plot_RL_weights():
   # start a new figure
   fig = go.FigureWidget(go.Scatter(
             x = np.arange(-T, 0, 1),
-            y = compute_weights(alpha),
+            y = compute_weights(alphaSlider.value),
             mode = 'lines',
             line = dict(color='black')
         ))
