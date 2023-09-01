@@ -81,7 +81,8 @@ def plot_interactive_RL_model(
     opt1Rewarded, 
     trueProbability, 
     RL_model, 
-    change_trueProb = True
+    change_trueProb = True,
+    generate_schedule = generate_schedule
     ):
   '''
   Plots the experimental schedule and the RL model estimate with sliders to
