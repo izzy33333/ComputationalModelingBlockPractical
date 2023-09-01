@@ -126,10 +126,13 @@ def plot_interactive_RL_model(
                                   description='trueProb:',
                                   continuous_update=False
                                   )
-
-  sliders = widgets.VBox(children=[alphaSlider,
-                                  startingProbSlider,
-                                  trueProbSlider])
+  if change_trueProb:
+    sliders = widgets.VBox(children=[alphaSlider,
+                                    startingProbSlider,
+                                    trueProbSlider])
+  else:
+    sliders = widgets.VBox(children=[alphaSlider,
+                                    startingProbSlider])
   
   probOpt1 = RL_model(opt1Rewarded,alphaSlider.value,startingProbSlider.value)
 
@@ -168,3 +171,58 @@ def plot_interactive_RL_model(
 
   # show the figure and the sliders
   display(widgets.VBox([sliders, fig]))
+
+
+def plot_RL_weights():
+  # get a slider for alpha
+  alphaSlider = widgets.FloatSlider(
+                              value=0.1,
+                              max=1,
+                              min=0.01,
+                              step=0.01,
+                              description='alpha:',
+                              continuous_update=False)
+
+
+  # how many trials back to display
+  T = 10
+
+  # this function computes the weights for a given alpha
+  def compute_weights(alpha):
+    # empty weight vector to assign into
+    weight = np.empty(T, dtype = float)
+    # calculate the weight on every trial back
+    for t in range(T):
+        # EXERCISE: explain/derive the following equation:
+        weight[t] = alpha*(1-alpha)**(T-(t+1));
+    return weight
+
+  # start a new figure
+  fig = go.FigureWidget(go.Scatter(
+            x = np.arange(-T, 0, 1),
+            y = compute_weights(alpha),
+            mode = 'lines',
+            line = dict(color='black')
+        ))
+
+  # label the axes
+  fig.update_layout(xaxis_title="delay (trials)", yaxis_title="weight")
+
+  # set the range for the y-axis
+  fig.update_yaxes(range=[0, 1])
+
+  # function that triggers when the alpha value changes
+  def change_alpha(change):
+    # get the current value of alpha
+    alpha = alphaSlider.value
+    # calculate the corresponding weights
+    weight = compute_weights(alpha)
+    # update the figure
+    with fig.batch_update():
+      fig.data[0].y = weight
+
+  # listen to changes of the alpha slider
+  alphaSlider.observe(change_alpha, names="value")
+
+  # show the slider and figure
+  display(widgets.VBox([alphaSlider, fig]))
