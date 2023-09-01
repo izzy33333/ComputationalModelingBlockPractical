@@ -13,7 +13,11 @@ pio.templates.default = "none"
 # this allows us to make interactive figures
 import ipywidgets as widgets
 
-def plot_schedule(opt1Rewarded, trueProbability, probOpt1 = None):
+def plot_schedule(
+    opt1Rewarded, 
+    trueProbability, 
+    probOpt1 = None
+    ):
   '''
   Plots the experimental schedule and the RL model estimate.
 
@@ -73,7 +77,12 @@ def plot_schedule(opt1Rewarded, trueProbability, probOpt1 = None):
 
   return fig
 
-def plot_interactive_RL_model(opt1Rewarded, trueProbability, RL_model):
+def plot_interactive_RL_model(
+    opt1Rewarded, 
+    trueProbability, 
+    RL_model, 
+    change_trueProb = True
+    ):
   '''
   Plots the experimental schedule and the RL model estimate with sliders to
   change the model parameters.
@@ -84,7 +93,12 @@ def plot_interactive_RL_model(opt1Rewarded, trueProbability, RL_model):
         trueProbability(float array): The probability with which option 1 is
           rewareded on each trial.
         RL_model(function): the RL model function to use to generate probOpt1.
+        change_trueProb(bool): whether to include a slider to change the true
+          probability. Defaults to True.
   '''
+
+  # compute number of trials
+  nTrials = len(opt1Rewarded)
 
   # this initiates some sliders that can be used to dynamically change aprameter values
   alphaSlider        = widgets.FloatSlider(
@@ -104,6 +118,7 @@ def plot_interactive_RL_model(opt1Rewarded, trueProbability, RL_model):
                                   description='startingProb:',
                                   continuous_update=False
                                   )
+  
   trueProbSlider     = widgets.FloatSlider(
                                   value=0.8,
                                   max=1,
@@ -147,7 +162,8 @@ def plot_interactive_RL_model(opt1Rewarded, trueProbability, RL_model):
   # run the functions if a slider value changes
   alphaSlider.observe(change_model, names="value")
   startingProbSlider.observe(change_model, names="value")
-  trueProbSlider.observe(change_schedule, names="value")
+  if change_trueProb:
+    trueProbSlider.observe(change_schedule, names="value")
 
   # show the figure and the sliders
   display(widgets.VBox([sliders, fig]))
