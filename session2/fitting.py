@@ -165,7 +165,7 @@ def run_paramterer_recovery(
 
             # create function to be minimized
             def min_fun(x):
-                return -loglikelihood_RL_model(opt1Rewarded, magOpt1, magOpt2, choice1, sigmoid(x[0]), np.exp(x[1]))
+                return -loglikelihood_RL_model(opt1Rewarded, magOpt1, magOpt2, choice1, logistic.cdf(x[0]), np.exp(x[1]))
 
             # fit the data of this simulated participant
             recovered_parameters = minimize(min_fun, [0, -1.5], method = 'Nelder-Mead')
@@ -173,7 +173,7 @@ def run_paramterer_recovery(
             # save the data of the current iteration
             recoveryData.simulatedAlpha[counter] = simulatedAlphaRange[alpha]
             recoveryData.simulatedBeta[counter]  = simulatedBetaRange[beta]
-            recoveryData.recoveredAlpha[counter] = sigmoid(recovered_parameters.x[0])
+            recoveryData.recoveredAlpha[counter] = logistic.cdf(recovered_parameters.x[0])
             recoveryData.recoveredBeta[counter]  = np.exp(recovered_parameters.x[1])
 
             # increase the iteration counter
