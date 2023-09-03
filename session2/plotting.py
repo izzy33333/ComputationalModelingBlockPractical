@@ -1,6 +1,9 @@
 # numpy is a libarary used to do all kinds of mathematical operations
 import numpy as np
 
+# pandas allows us to organise data as tables (called "dataframes")
+import pandas as pd
+
 # we use plotly to make our figures
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -403,6 +406,7 @@ def plot_likelihood_landscapes(
 
   fig.show()
 
+
 def plot_loglikelihood_trajectory(
                             opt1Rewarded, 
                             magOpt1, 
@@ -447,4 +451,53 @@ def plot_loglikelihood_trajectory(
                     xaxis_title='beta',
                     zaxis_title='log likelihood')
 
+  fig.show()
+
+
+def plot_recovered_parameters(recoveryData):
+  '''
+  Plots the simulated against the recoverd parameters
+
+    Parameters:
+        recoveryData(DataFrame): DataFrame with columns simulatedAlpha,
+          simulatedBeta, recoverdAlpha, recoverdBeta
+  '''
+
+  fig = make_subplots(rows=1, cols=2,
+                    subplot_titles=("alpha","inverse temperature"))
+
+  # Add line traces
+  fig.add_trace(go.Scatter(x=[0, 1.1], y=[0, 1.1], mode='lines', line=dict(color='black', width=1)), row=1, col=1)
+  fig.add_trace(go.Scatter(x=[0, 0.7], y=[0, 0.7], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
+
+  # Add scatter traces
+  fig.add_trace(go.Scatter(
+                      x=recoveryData["simulatedAlpha"],
+                      y=recoveryData["recoveredAlpha"],
+                      mode='markers',
+                      marker=dict(color="blue"),
+                      hovertemplate = 'Simulated beta: %{customdata[0]}<br>Recovered beta: %{customdata[1]}<extra></extra>',
+                      customdata = np.stack((round(recoveryData["simulatedBeta"],3), round(recoveryData["recoveredBeta"],3)), axis=-1)),
+            row=1, col=1)
+
+  fig.add_trace(go.Scatter(
+                      x=recoveryData["simulatedBeta"],
+                      y=recoveryData["recoveredBeta"],
+                      mode='markers',
+                      marker=dict(color='blue'),
+                      hovertemplate = '<br>Simulated Alpha: %{customdata[0]}<br>Recovered Alpha: %{customdata[1]}<extra></extra>',
+                      customdata = np.stack((round(recoveryData["simulatedAlpha"],3), round(recoveryData["recoveredAlpha"],3)), axis=-1)),
+            row=1, col=2)
+
+
+  # Setting the ticks and range on x and y axes
+  fig.update_xaxes(tickvals=list(np.arange(0,1.2,0.2)), range=[0,0.7], row=1, col=1)
+  fig.update_yaxes(tickvals=list(np.arange(0,1.2,0.2)), range=[0,1.1], row=1, col=1)
+  fig.update_xaxes(tickvals=list(np.arange(0,0.8,0.1)), range=[0,0.4], row=1, col=2)
+  fig.update_yaxes(tickvals=list(np.arange(0,0.8,0.1)), range=[0,0.7], row=1, col=2)
+
+  fig.update_layout(xaxis1_title="simulated", yaxis1_title="recovered", showlegend=False)
+  fig.update_layout(xaxis2_title="simulated", yaxis2_title="recovered", showlegend=False)
+
+  # Show the figure
   fig.show()
