@@ -1,6 +1,9 @@
 # numpy is a libarary used to do all kinds of mathematical operations
 import numpy as np
 
+# we use the minimize function from scipy to fit models
+from scipy.optimize import minimize
+
 # import the logistic function
 from scipy.stats import logistic
 
