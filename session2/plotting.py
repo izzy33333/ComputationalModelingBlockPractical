@@ -297,8 +297,9 @@ def plot_interactive_RL_model(simulate_RL_model, opt1Rewarded, magOpt1, magOpt2,
                                 continuous_update=False
                                 )
 
-  sliders = widgets.VBox(children=[alphaSlider,
-                                  betaSlider2])
+  sliders = widgets.VBox(children=[
+                                  alphaSlider,
+                                  betaSlider])
 
   # run the RL model
   probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value)
