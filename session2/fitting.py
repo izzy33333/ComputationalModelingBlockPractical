@@ -135,7 +135,8 @@ def run_paramterer_recovery(
                         simulatedBetaRange,
                         simulate_RL_model,
                         generate_schedule,
-                        trueProbability
+                        trueProbability,
+                        rng
                         ):
     
     nSimulatedSubjects = len(simulatedAlphaRange) * len(simulatedBetaRange)
