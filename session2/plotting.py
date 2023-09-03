@@ -193,11 +193,11 @@ def visualise_utility_function(utility_function, omega = False, nSamples = 100):
 
   # make a 3d plot of the utility function
   fig = go.Figure(go.Surface(z = utilityMatrix,
-                            x = magRange,
-                            y = probRange))
+                            y = magRange,
+                            x = probRange))
 
-  fig.update_scenes(xaxis_title='magnitude',
-                    yaxis_title='probability',
+  fig.update_scenes(yaxis_title='magnitude',
+                    xaxis_title='probability',
                     zaxis_title='utility')
 
   fig.update_layout(scene_camera=dict(eye=dict(x=-2, y=-2, z=2)))
