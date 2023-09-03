@@ -225,7 +225,7 @@ def visualise_utility_function(utility_function, omega = False, nSamples = 100):
      display(fig)
 
  
- def visualise_softmax(softmax):
+def visualise_softmax(softmax):
   '''
   Visualises a softmax function using plotly.
   
