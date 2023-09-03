@@ -1,7 +1,7 @@
 # numpy is a libarary used to do all kinds of mathematical operations
 import numpy as np
 
-# import the logistic function (and rename it to sigmoid)
+# import the logistic function
 from scipy.stats import logistic
 
 def utility_fun(mag, prob):
@@ -65,3 +65,61 @@ def loglikelihood_RL_model(opt1Rewarded,
         probOpt1[t+1] = probOpt1[t] + alpha*delta[t]
 
   return LL
+
+
+def loglikelihood_trajectory(
+                        opt1Rewarded,
+                        magOpt1,
+                        magOpt2,
+                        choice1
+                    ):
+    '''
+    Returns the log likelihiood of the data given the choices and the model for
+        every step a Nelder-Mead solver takes on the likelihood landscape
+
+    Parameters:
+        opt1rewarded(bool array): True if option 1 is rewarded on a trial, False
+          if option 2 is rewarded on a trial.
+        magOpt1(int array): reward points between 1 and 100 for option 1 on each
+          trial
+        magOpt2(int array): reward points between 1 and 100 for option 2 on each
+           trial
+        choice1(bool array): True if option 1 was chosen on a trial, False if
+          option 2 was chosen on a trial.
+    '''
+   
+    # create function to be minimized
+    def min_fun(x):
+        '''
+        Here we define a temporary function that we can pass to the minimizer.
+        The minimze() function requires its first argument to be a function with
+        one argument, which is why x is given to the likelihood function as a vector
+        containing parameters x[0] (learning rate) and x[1] (inverse temperature). We
+        also constrain the learning rate and inverse temperature by transforming the
+        input parameters using functions that map [-Inf, Inf] ->  [0, 1] and
+        [-Inf, Inf] -> [0, Inf] respectivly.
+        '''
+        return -loglikelihood_RL_model(opt1Rewarded,
+                                        magOpt1,
+                                        magOpt2,
+                                        choice1,
+                                        logistic.cdf(x[0]),
+                                        np.exp(x[1]))
+
+    # fit the data of this simulated participant
+    recovered_parameters = minimize(min_fun, # the function we want to minimise
+                                    [2, -0.5], # inital values for alpha and beta that the algorithm uses
+                                    method = 'Nelder-Mead', # what minimisation algorithm to use
+                                    options = {"return_all": True}) # this outputs every step the solver takes, which allows us to plot it
+
+
+    niter = len(recovered_parameters.allvecs)
+    alphas = np.zeros(niter)
+    betas = np.zeros(niter)
+    loglikelihoods = np.zeros(niter)
+    for i in range(niter):
+        alphas[i] = logistic.cdf(recovered_parameters.allvecs[i][0])
+        betas[i] = np.exp(recovered_parameters.allvecs[i][1])
+        loglikelihoods[i] = loglikelihood_RL_model(opt1Rewarded, magOpt1, magOpt2, choice1, alphas[i], betas[i])
+
+    return alphas, betas, loglikelihoods

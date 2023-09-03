@@ -352,6 +352,18 @@ def plot_likelihood_landscapes(
                             choice1,
                             loglikelihood_RL_model = loglikelihood_RL_model
                             ):
+  '''
+  Plots the likelihood landscape for alpha and beta using plotly.
+
+    Parameters:
+        opt1rewarded(int array): 1 if option 1 is rewarded on a trial, 0 if
+          option 2 is rewarded on a trial.
+        magOpt1(int array): The reward magnitude of option 1.
+        magOpt2(int array): The reward magnitude of option 1.
+        choice1(int array): whether option 1 (1) or option 2 (2) was chosen on
+          each.
+        loglikelihood_RL_model(function): The loglikelihood function to use.
+  '''
   
   # the values of alpha and beta to plug into the likelihood function
   alphaRange = np.arange(0.01, 1, 0.02)
@@ -388,5 +400,51 @@ def plot_likelihood_landscapes(
   fig.update_scenes(yaxis_title='alpha',
                     xaxis_title='beta',
                     zaxis_title='')
+
+  fig.show()
+
+def plot_loglikelihood_trajectory(
+                            opt1Rewarded, 
+                            magOpt1, 
+                            magOpt2, 
+                            choice1,
+                            loglikelihood_RL_model = loglikelihood_RL_model
+                            ):
+
+  # the values of alpha and beta to plug into the likelihood function
+  alphaRange = np.arange(0.01, 1, 0.02)
+  betaRange  = np.arange(0.01, 1, 0.02)
+
+  # matrix to store the log likelihoods for each value of alpha and beta we try
+  LLMatrix = np.zeros((len(alphaRange),len(betaRange)))
+
+  # loop through alpha and beta and get the corresponding log likelihoods
+  for a in range(len(alphaRange)):
+    for b in range(len(betaRange)):
+      LLMatrix[a,b] = loglikelihood_RL_model(opt1Rewarded, magOpt1, magOpt2, choice1, alphaRange[a], betaRange[b])
+
+
+  alphas, betas, loglikelihoods = loglikelihood_trajectory(opt1Rewarded, magOpt1, magOpt2, choice1)
+
+  fig = go.Figure(go.Surface(z = LLMatrix,
+                          y = alphaRange,
+                          x = betaRange))
+
+  fig.add_trace(go.Scatter3d(
+      x=betas, y=alphas, z=loglikelihoods+5,
+      marker=dict(
+          size=4,
+          color=loglikelihoods,
+          colorscale='Viridis',
+      ),
+      line=dict(
+          color='darkblue',
+          width=5
+      )
+  ))
+
+  fig.update_scenes(yaxis_title='alpha',
+                    xaxis_title='beta',
+                    zaxis_title='log likelihood')
 
   fig.show()
