@@ -1,6 +1,12 @@
 # numpy is a libarary used to do all kinds of mathematical operations
 import numpy as np
 
+# import the logistic function (and rename it to sigmoid)
+from scipy.stats import logistic
+
+def utility_fun(mag, prob):
+  return mag*prob
+
 def loglikelihood_RL_model(opt1Rewarded,
                            magOpt1,
                            magOpt2,
@@ -9,8 +15,8 @@ def loglikelihood_RL_model(opt1Rewarded,
                            beta,
                            *additonalParameters,
                            startingProb = 0.5,
-                           utility_function = multiplicative_utility,
-                           choice_function = softmax):
+                           utility_function = utility_fun,
+                           choice_function = logistic.cdf):
   '''
   Returns the log likelihiood of the data given the choices and the model
 
@@ -52,9 +58,9 @@ def loglikelihood_RL_model(opt1Rewarded,
         utility1 = utility_function(magOpt1[t], probOpt1[t], *additonalParameters)
         utility2 = utility_function(magOpt2[t], (1 - probOpt1[t]), *additonalParameters)
         if choice1[t] == 1:
-          LL += np.log(choice_function(utility1, utility2, beta))
+          LL += np.log(choice_function((utility1-utility2)*beta))
         else:
-          LL += np.log(choice_function(utility2, utility1, beta))
+          LL += np.log(choice_function((utility2-utility1)*beta))
         delta[t] = opt1Rewarded[t] - probOpt1[t]
         probOpt1[t+1] = probOpt1[t] + alpha*delta[t]
 
