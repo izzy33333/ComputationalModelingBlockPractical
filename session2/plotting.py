@@ -225,3 +225,54 @@ def visualise_utility_function(utility_function, omega = False, nSamples = 100):
      display(fig)
 
  
+ def visualise_softmax(softmax):
+  '''
+  Visualises a softmax function using plotly.
+  
+      Parameters:
+          softmax(function): The softmax function to visualise.
+    '''
+
+  # define a slider for the inverse temperature
+  betaSlider = widgets.FloatSlider(
+                              value=3,
+                              max=50,
+                              min=0,
+                              step=0.01,
+                              description='beta:',
+                              continuous_update=False)
+
+  # the initial beta to display
+  beta = 3
+  utilityRange = np.linspace(-2, 2, 1000)
+
+  # start a new figure
+  fig = go.FigureWidget(go.Scatter(
+            x = utilityRange,
+            y = softmax(utilityRange, 0, beta),
+            mode = 'lines',
+            line = dict(color='black')
+        ))
+
+
+  # label the axes
+  fig.update_layout(xaxis_title="utility 1 - utility 2", yaxis_title="probability of choosing option 1")
+
+  # set the range for the y-axis
+  fig.update_yaxes(range=[0, 1])
+
+  # function that triggers when the beta value changes
+  def change_beta(change):
+    # get the current value of beta
+    beta = betaSlider.value
+    # calculate the corresponding utilities
+    u = softmax(utilityRange, 0, beta)
+    # update the figure
+    with fig.batch_update():
+      fig.data[0].y = u
+
+  # listen to changes of the beta slider
+  betaSlider.observe(change_beta, names="value")
+
+  # show the slider and figure
+  display(widgets.VBox([betaSlider, fig]))
