@@ -144,17 +144,15 @@ def plot_schedule(
 
   return fig
 
-def visualise_utility_function(utility_function, nSamples = 100, omega = False):
+def visualise_utility_function(utility_function, omega = False nSamples = 100):
   '''
   Visualises a utility function using plotly.
 
     Parameters:
         utility_function(function): The utility function to visualise.
+        omega(bool): Whether the utility function has an omega parameter.
         nSamples(int): The number of samples to take from the utility function
           to visualise it.
-
-    Returns:
-        fig(plotly figure): The figure visualising the utility function.
   '''
 
   if omega:
@@ -171,16 +169,28 @@ def visualise_utility_function(utility_function, nSamples = 100, omega = False):
   magRange  = np.linspace(1, 100, nSamples)
   probRange = np.linspace(0, 1, nSamples)
 
-  # matrix to fill in with utility values
-  utilityMatrix = np.zeros((nSamples,nSamples))
+  # function to fill in the utility matrix
+  def compute_utilityMatrix(
+      utility_function = utility_function, 
+      show_omega = omega, 
+      nSamples = nSamples, 
+      omega = omegaSlider.value
+      ):
 
-  # loop through all possible values of mag and prob and get their utility
-  for mag in range(nSamples):
-    for prob in range(nSamples):
-      if omega:
-        utilityMatrix[mag,prob] = utility_function(magRange[mag],probRange[prob],omegaSlider.value)
-      else:
-        utilityMatrix[mag,prob] = utility_function(magRange[mag],probRange[prob])
+    # empty matrix to fill in with utility values
+    utilityMatrix = np.zeros((nSamples,nSamples))
+
+    # loop through all possible values of mag and prob and get their utility
+    for mag in range(nSamples):
+      for prob in range(nSamples):
+        if show_omega:
+          utilityMatrix[mag,prob] = utility_function(magRange[mag], probRange[prob], omega)
+        else:
+          utilityMatrix[mag,prob] = utility_function(magRange[mag],probRange[prob])
+    
+    return utilityMatrix
+  
+  utilityMatrix = compute_utilityMatrix(utility_function)
 
   # make a 3d plot of the utility function
   fig = go.Figure(go.Surface(z = utilityMatrix,
@@ -191,7 +201,28 @@ def visualise_utility_function(utility_function, nSamples = 100, omega = False):
                     yaxis_title='probability',
                     zaxis_title='utility')
 
-  fig.update_layout(scene_camera=dict(eye=dict(x=-2, y=-2, z=2)),
-                    title='multiplicative utility')
+  fig.update_layout(scene_camera=dict(eye=dict(x=-2, y=-2, z=2)))
 
-  return fig
+  # if omega is true, add a slider to change omega
+  if omega:
+    # make the figure interactive
+    fig = go.FigureWidget(fig)
+
+    # function that triggers when the omega value changes
+    def change_omega(change):
+      # calculate the utility matrix for the new omega value
+      utilityMatrix = compute_utilityMatrix(omegaSlider.value)
+      # update the figure
+      with fig.batch_update():
+        fig.data[0].z = utilityMatrix
+    
+    # listen to changes of the omega slider
+    omegaSlider.observe(change_omega, names="value")
+
+    # show the slider and figure
+    display(widgets.VBox([omegaSlider, fig]))
+    
+  else:
+     display(fig)
+
+ 
