@@ -144,7 +144,7 @@ def plot_schedule(
 
   return fig
 
-def visualise_utility_function(utility_function, omega = False nSamples = 100):
+def visualise_utility_function(utility_function, omega = False, nSamples = 100):
   '''
   Visualises a utility function using plotly.
 
@@ -221,7 +221,7 @@ def visualise_utility_function(utility_function, omega = False nSamples = 100):
 
     # show the slider and figure
     display(widgets.VBox([omegaSlider, fig]))
-    
+
   else:
      display(fig)
 
