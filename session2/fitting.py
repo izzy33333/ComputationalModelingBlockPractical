@@ -178,3 +178,5 @@ def run_paramterer_recovery(
 
             # increase the iteration counter
             counter += 1
+            
+    return recoveryData
