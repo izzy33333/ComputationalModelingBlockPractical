@@ -210,7 +210,7 @@ def visualise_utility_function(utility_function, omega = False, nSamples = 100):
     # function that triggers when the omega value changes
     def change_omega(change):
       # calculate the utility matrix for the new omega value
-      utilityMatrix = compute_utilityMatrix(omega_value = omegaSlider.value)
+      utilityMatrix = compute_utilityMatrix(omega = omegaSlider.value)
       # update the figure
       with fig.batch_update():
         fig.data[0].z = utilityMatrix
