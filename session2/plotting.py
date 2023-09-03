@@ -225,7 +225,7 @@ def visualise_utility_function(utility_function, omega = False, nSamples = 100):
      display(fig)
 
  
-def visualise_softmax(softmax):
+def visualise_softmax(softmax = softmax):
   '''
   Visualises a softmax function using plotly.
   
@@ -276,3 +276,48 @@ def visualise_softmax(softmax):
 
   # show the slider and figure
   display(widgets.VBox([betaSlider, fig]))
+
+def plot_interactive_RL_model():
+  # make sliders for alpha and beta
+  alphaSlider = widgets.FloatSlider(
+                                value=0.1,
+                                max=1,
+                                min=0.001,
+                                step=0.01,
+                                description='alpha:',
+                                continuous_update=False
+                                )
+
+  betaSlider = widgets.FloatSlider(
+                                value=0.02,
+                                max=1,
+                                min=0,
+                                step=0.01,
+                                description='beta:',
+                                continuous_update=False
+                                )
+
+  sliders = widgets.VBox(children=[alphaSlider,
+                                  betaSlider2])
+
+  # run the RL model
+  probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value)
+
+  # call the figure function we wrote and make it interactive
+  fig = go.FigureWidget(plot_schedule(opt1Rewarded, trueProbability, magOpt1, magOpt2, probOpt1, choiceProb1))
+
+  # function to run if alpha or beta have changed
+  def change_model(change):
+    # rerun the RL model
+    probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value)
+    # update the figure
+    with fig.batch_update():
+      fig.data[2].y = probOpt1
+      fig.data[3].y = choiceProb1
+
+  # run the function if a slider value changes
+  alphaSlider.observe(change_model, names="value")
+  betaSlider.observe(change_model, names="value")
+
+  # show the figure and the sliders
+  display(widgets.VBox([sliders, fig]))
