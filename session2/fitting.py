@@ -161,7 +161,7 @@ def run_paramterer_recovery(
 
             # simulate an artificial participant
             probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, simulatedAlphaRange[alpha], simulatedBetaRange[beta])
-            choice1 = (choiceProb1 > rng.random(nTrials)).astype(int)
+            choice1 = (choiceProb1 > rng.random(len(opt1Rewarded))).astype(int)
 
             # create function to be minimized
             def min_fun(x):
