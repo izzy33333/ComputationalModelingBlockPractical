@@ -155,15 +155,14 @@ def visualise_utility_function(utility_function, omega = False, nSamples = 100):
           to visualise it.
   '''
 
-  if omega:
-     # get a slider for omega
-    omegaSlider = widgets.FloatSlider(
-                              value=0.5,
-                              max=1,
-                              min=0,
-                              step=0.01,
-                              description='omega:',
-                              continuous_update=False)
+  # get a slider for omega
+  omegaSlider = widgets.FloatSlider(
+                            value=0.5,
+                            max=1,
+                            min=0,
+                            step=0.01,
+                            description='omega:',
+                            continuous_update=False)
 
   # the range of mag and prob values for which we want to visualise the function
   magRange  = np.linspace(1, 100, nSamples)
@@ -186,7 +185,7 @@ def visualise_utility_function(utility_function, omega = False, nSamples = 100):
         if show_omega:
           utilityMatrix[mag,prob] = utility_function(magRange[mag], probRange[prob], omega)
         else:
-          utilityMatrix[mag,prob] = utility_function(magRange[mag],probRange[prob])
+          utilityMatrix[mag,prob] = utility_function(magRange[mag], probRange[prob])
     
     return utilityMatrix
   
