@@ -225,7 +225,7 @@ def visualise_utility_function(utility_function, omega = False, nSamples = 100):
      display(fig)
 
  
-def visualise_softmax(softmax = softmax):
+def visualise_softmax(softmax):
   '''
   Visualises a softmax function using plotly.
   
@@ -277,7 +277,7 @@ def visualise_softmax(softmax = softmax):
   # show the slider and figure
   display(widgets.VBox([betaSlider, fig]))
 
-def plot_interactive_RL_model():
+def plot_interactive_RL_model(simulate_RL_model, opt1Rewarded, magOpt1, magOpt2, trueProbability):
   # make sliders for alpha and beta
   alphaSlider = widgets.FloatSlider(
                                 value=0.1,
