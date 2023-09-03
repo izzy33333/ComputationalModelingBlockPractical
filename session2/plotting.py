@@ -13,6 +13,9 @@ pio.templates.default = "none"
 # this allows us to make interactive figures
 import ipywidgets as widgets
 
+# import some custom fitting functions we wrote
+from fitting import *
+
 def plot_schedule(
     opt1Rewarded,
     trueProbability,
@@ -26,8 +29,8 @@ def plot_schedule(
   Plots the experimental schedule and the RL model estimate using plotly.
 
     Parameters:
-        opt1rewarded(bool array): True if option 1 is rewarded on a trial, False
-          if option 2 is rewarded on a trial.
+        opt1rewarded(int array): 1 if option 1 is rewarded on a trial, 0 if
+          option 2 is rewarded on a trial.
         trueProbability(float array): The probability with which option 1 is
           rewareded on each trial.
         magOpt1(int array): The reward magnitude of option 1. Defaults to None,
@@ -277,7 +280,26 @@ def visualise_softmax(softmax):
   # show the slider and figure
   display(widgets.VBox([betaSlider, fig]))
 
-def plot_interactive_RL_model(simulate_RL_model, opt1Rewarded, magOpt1, magOpt2, trueProbability):
+def plot_interactive_RL_model(
+                          simulate_RL_model, 
+                          opt1Rewarded, 
+                          magOpt1, 
+                          magOpt2, 
+                          trueProbability
+                          ):
+  '''
+  Plots the experimental schedule and the RL model estimate using plotly.
+
+    Parameters:
+        simulate_RL_model(function): The RL model to use to simulate the data.
+        opt1rewarded(int array): 1 if option 1 is rewarded on a trial, 0 if
+          option 2 is rewarded on a trial.
+        magOpt1(int array): The reward magnitude of option 1.
+        magOpt2(int array): The reward magnitude of option 1.
+        trueProbability(float array): The probability with which option 1 is
+          rewareded on each trial.
+  '''
+
   # make sliders for alpha and beta
   alphaSlider = widgets.FloatSlider(
                                 value=0.1,
@@ -322,3 +344,49 @@ def plot_interactive_RL_model(simulate_RL_model, opt1Rewarded, magOpt1, magOpt2,
 
   # show the figure and the sliders
   display(widgets.VBox([sliders, fig]))
+
+def plot_likelihood_landscapes(
+                            opt1Rewarded, 
+                            magOpt1, 
+                            magOpt2, 
+                            choice1,
+                            loglikelihood_RL_model = loglikelihood_RL_model
+                            ):
+  
+  # the values of alpha and beta to plug into the likelihood function
+  alphaRange = np.arange(0.01, 1, 0.02)
+  betaRange  = np.arange(0.01, 1, 0.02)
+
+  # matrix to store the log likelihoods for each value of alpha and beta we try
+  LLMatrix = np.zeros((len(alphaRange),len(betaRange)))
+
+  # loop through alpha and beta and get the corresponding log likelihoods
+  for a in range(len(alphaRange)):
+    for b in range(len(betaRange)):
+      LLMatrix[a,b] = loglikelihood_RL_model(opt1Rewarded, magOpt1, magOpt2, choice1, alphaRange[a], betaRange[b])
+
+  # also calculate the normalised likelihood
+  LMatrix = np.exp(LLMatrix)/sum(sum(np.exp(LLMatrix)))
+
+  # visualise the likelihood for each parameter pair
+  fig = make_subplots(rows=1, cols=2,
+                      specs=[[{'is_3d': True}, {'is_3d': True}]],
+                      subplot_titles=['normalised likelihood', 'log likelihood'],
+                      )
+
+  # this plots the normalised likelihood
+  fig.add_trace(go.Surface(z = LMatrix,
+                          y = alphaRange,
+                          x = betaRange,
+                          colorbar_x = -0.07), 1, 1)
+
+  # this plots the log likelihood
+  fig.add_trace(go.Surface(z = LLMatrix,
+                          y = alphaRange,
+                          x = betaRange), 1, 2)
+
+  fig.update_scenes(yaxis_title='alpha',
+                    xaxis_title='beta',
+                    zaxis_title='')
+
+  fig.show()
