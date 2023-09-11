@@ -92,6 +92,11 @@ def loglikelihood_trajectory(
            trial
         choice1(bool array): True if option 1 was chosen on a trial, False if
           option 2 was chosen on a trial.
+
+    Returns:
+        alphas(float array): learning rate at each step of the solver
+        betas(float array): inverse temperature at each step of the solver
+        loglikelihoods(float array): log likelihood at each step of the solver
     '''
    
     # create function to be minimized
@@ -138,7 +143,21 @@ def run_paramterer_recovery(
                         trueProbability,
                         rng
                         ):
+    '''
+    This function simulates participants with different learning rates and then fits the data . This allows us to see if the model can recover the true learning rates.
     
+    Parameters:
+        simulatedAlphaRange(float array): alpha values to simulate
+        simulatedBetaRange(float array): beta values to simulate
+        simulate_RL_model(function): the function we use to simulate the RL model
+        generate_schedule(function): the function we use to generate a schedule
+        trueProbability(float array): the reward probabilities
+        rng(random number generator): the random number generator we use
+
+    Returns:
+        recoveryData(dataframe): a dataframe containing the simulated and recovered parameters
+    '''
+
     nSimulatedSubjects = len(simulatedAlphaRange) * len(simulatedBetaRange)
 
     # initialise a table to store the simualted and recoverd parameters in
@@ -178,5 +197,70 @@ def run_paramterer_recovery(
 
             # increase the iteration counter
             counter += 1
-            
+
     return recoveryData
+
+
+def run_paramterer_recovery_with_difference(
+                stableAlphas,           
+                volatileAlphas,         
+                betas,                  
+                simulate_RL_model,      
+                generate_schedule,       
+                trueProbabilityStable,   
+                trueProbabilityVolatile, 
+                rng                   
+                ):
+    ''' 
+    This function simulates participants with different learning rates in the stable and volatile conditions, and then fits the data with a model that assumes the same learning rate in both conditions. This allows us to see if the model can recover the true learning rates in the stable and volatile conditions.
+    
+    Parameters:
+        stableAlphas(float array): alpha values in the stable condition
+        volatileAlphas(float array): alpha values in the volatile condition
+        betas(float array): beta values in both conditions
+        simulate_RL_model(function): the function we use to simulate the RL model
+        generate_schedule(function): the function we use to generate a schedule
+        trueProbabilityStable(float array): the reward probabilities in the stable condition
+        trueProbabilityVolatile(float array): the reward probabilities in the volatile condition
+        rng(random number generator): the random number generator we use
+
+    Returns:
+        fittedParameters(dataframe): a dataframe containing the recovered parameters
+    '''
+
+    nSubjects = len(betas)
+
+    # initialise a table to store the simualted and recoverd parameters in
+    fittedParameters = pd.DataFrame(np.zeros((nSimulatedSubjects, 3)),
+                                        columns = ["alpha stable",
+                                                    "alpha volatile",
+                                                    "inverse temperature"])
+
+    for p in range(nSubjects):
+        if p % 10 == 0:
+            display("fitting subject " + str(p) + "/" + str(nSubjects))
+
+        # generate a new schedule
+        opt1RewardedStable, magOpt1Stable, magOpt2Stable = generate_schedule(trueProbabilityStable)
+        opt1RewardedVolatile, magOpt1Volatile, magOpt2Volatile = generate_schedule(trueProbabilityVolatile)
+
+        # simulate an artificial participant
+        probOpt1Stable, choiceProb1Stable = simulate_RL_model(opt1RewardedStable, magOpt1Stable, magOpt2Stable, stableAlphas[p], betas[p])
+        probOpt1Volatile, choiceProb1Volatile = simulate_RL_model(opt1RewardedVolatile, magOpt1Volatile, magOpt2Volatile, volatileAlphas[p], betas[p])
+        choice1Stable = (choiceProb1Stable > rng.random(len(opt1RewardedStable))).astype(int)
+        choice1Volatile = (choiceProb1Volatile > rng.random(len(opt1RewardedVolatile))).astype(int)
+
+        # create function to be minimized
+        def min_fun(x):
+            LL1 = loglikelihood_RL_model(opt1RewardedStable, magOpt1Stable, magOpt2Stable, choice1Stable, logistic.cdf(x[0]), np.exp(x[2]))
+            LL2 = loglikelihood_RL_model(opt1RewardedVolatile, magOpt1Volatile, magOpt2Volatile, choice1Volatile, logistic.cdf(x[1]), np.exp(x[2]))
+            return -(LL1 + LL2)
+
+        # fit the data of this simulated participant
+        pars = minimize(min_fun, [0, 0, -1.5], method = 'Nelder-Mead')
+
+        fittedParameters["alpha stable"][p] = logistic.cdf(pars.x[0])
+        fittedParameters["alpha volatile"][p] = logistic.cdf(pars.x[1])
+        fittedParameters["inverse temperature"][p] = np.exp(pars.x[2])
+
+    return fittedParameters
