@@ -206,7 +206,17 @@ def visualise_utility_function(utility_function, omega = False, nSamples = 100):
                     xaxis_title='probability',
                     zaxis_title='utility')
 
-  fig.update_layout(scene_camera=dict(eye=dict(x=-2, y=-2, z=2)))
+  fig.update_layout(scene_camera=dict(eye=dict(x=-2, y=-2, z=2)),
+                    autosize=False,
+                    width=500,
+                    height=500,
+                    margin=dict(
+                        l=50,
+                        r=50,
+                        b=100,
+                        t=100,
+                        pad=4
+                    ))
 
   # if omega is true, add a slider to change omega
   if omega:
@@ -414,6 +424,18 @@ def plot_loglikelihood_trajectory(
                             choice1,
                             loglikelihood_RL_model = loglikelihood_RL_model
                             ):
+  '''
+  Plots the likelihood landscape for alpha and beta using plotly, and a walk on that landscape.
+
+    Parameters:
+        opt1rewarded(int array): 1 if option 1 is rewarded on a trial, 0 if
+          option 2 is rewarded on a trial.
+        magOpt1(int array): The reward magnitude of option 1.
+        magOpt2(int array): The reward magnitude of option 1.
+        choice1(int array): whether option 1 (1) or option 2 (2) was chosen on
+          each. 
+        loglikelihood_RL_model(function): The loglikelihood function to use.
+  '''
 
   # the values of alpha and beta to plug into the likelihood function
   alphaRange = np.arange(0.01, 1, 0.02)
@@ -500,4 +522,14 @@ def plot_recovered_parameters(recoveryData):
   fig.update_layout(xaxis2_title="simulated", yaxis2_title="recovered", showlegend=False)
 
   # Show the figure
+  fig.show()
+
+def visualise_alpha_difference(stableAlphas, volatileAlphas, title):
+  fig = px.histogram(pd.DataFrame({"stable block": stableAlphas,
+                                  "volatile block": volatileAlphas}).melt(),
+                                  color="variable", x="value", marginal="box", barmode="overlay")
+
+  fig.update_layout(title= title, xaxis_title="", legend_title_text="")
+  fig.update_xaxes(range=[0, .6])
+
   fig.show()
