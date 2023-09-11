@@ -228,7 +228,7 @@ def run_paramterer_recovery_with_difference(
         fittedParameters(dataframe): a dataframe containing the recovered parameters
     '''
 
-    nSubjects = len(betas)
+    nSimulatedSubjects = len(betas)
 
     # initialise a table to store the simualted and recoverd parameters in
     fittedParameters = pd.DataFrame(np.zeros((nSimulatedSubjects, 3)),
@@ -236,9 +236,9 @@ def run_paramterer_recovery_with_difference(
                                                     "alpha volatile",
                                                     "inverse temperature"])
 
-    for p in range(nSubjects):
+    for p in range(nSimulatedSubjects):
         if p % 10 == 0:
-            display("fitting subject " + str(p) + "/" + str(nSubjects))
+            display("fitting subject " + str(p) + "/" + str(nSimulatedSubjects))
 
         # generate a new schedule
         opt1RewardedStable, magOpt1Stable, magOpt2Stable = generate_schedule(trueProbabilityStable)
