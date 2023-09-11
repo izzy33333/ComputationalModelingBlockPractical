@@ -529,7 +529,7 @@ def visualise_alpha_difference(stableAlphas, volatileAlphas, title):
                                   "volatile block": volatileAlphas}).melt(),
                                   color="variable", x="value", marginal="box", barmode="overlay")
 
-  fig.update_layout(title= title, xaxis_title="", legend_title_text="")
-  fig.update_xaxes(range=[0, .6])
+  fig.update_layout(title= title, xaxis_title="learning rate", legend_title_text="")
+  fig.update_xaxes(range=[0, .7])
 
   fig.show()
