@@ -209,12 +209,12 @@ def visualise_utility_function(utility_function, omega = False, nSamples = 100):
   fig.update_layout(scene_camera=dict(eye=dict(x=-2, y=-2, z=2)),
                     autosize=False,
                     width=500,
-                    height=600,
+                    height=500,
                     margin=dict(
-                        l=50,
-                        r=50,
-                        b=50,
-                        t=50,
+                        l=0,
+                        r=0,
+                        b=0,
+                        t=0,
                         pad=4
                     ))
 
