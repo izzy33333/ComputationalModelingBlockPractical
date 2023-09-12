@@ -403,7 +403,7 @@ def plot_interactive_RL_model(
 
   fig.update_layout(
                   autosize=True,
-                  height=700)
+                  height=500)
   
   # function to run if alpha or beta have changed
   def change_model(change):
