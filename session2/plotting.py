@@ -26,7 +26,9 @@ def plot_schedule(
     magOpt2     = None,
     probOpt1    = None,
     choiceProb1 = None,
-    choice1     = None
+    choice1     = None,
+    utility_fun = None,
+    *utilityParameters
     ):
   '''
   Plots the experimental schedule and the RL model estimate using plotly.
@@ -138,6 +140,44 @@ def plot_schedule(
             yaxis = 'y2',
         ))
 
+    if utility_fun is not None:
+      # compute the utility of option 1 and option 2
+      utility1 = utility_fun(magOpt1, trueProbability, *utilityParameters)
+      utility2 = utility_fun(magOpt2, 1-trueProbability, *utilityParameters)
+
+      # plot the utility difference
+      fig.add_trace(
+          go.Scatter(
+              x = list(range(nTrials)),
+              y = utility1 - utility2,
+              mode = 'lines',
+              line = dict(color='red', dash='dash'),
+              name = "utility option 1",
+              xaxis = 'x1',
+              yaxis = 'y1',
+          ))
+      
+      # plot the utility of option 1 and option 2
+      fig.add_trace(
+          go.Scatter(
+              x = list(range(nTrials)),
+              y = utility1,
+              mode = 'lines',
+              line = dict(color='orange', dash='dash'),
+              name = "utility option 1",
+              xaxis = 'x2',
+              yaxis = 'y2',
+          ))
+      fig.add_trace(
+          go.Scatter(
+              x = list(range(nTrials)),
+              y = utility2,
+              mode = 'lines',
+              line = dict(color='green', dash='dash'),
+              name = "utility option 2",
+              xaxis = 'x2',
+              yaxis = 'y2',
+          ))
     # label the axes
     fig.update_layout(xaxis2_title="trial number", yaxis2_title="reward magnitude")
 
