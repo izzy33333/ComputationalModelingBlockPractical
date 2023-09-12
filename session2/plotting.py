@@ -300,7 +300,7 @@ def plot_interactive_RL_model(
                           magOpt1, 
                           magOpt2, 
                           trueProbability,
-                          *additionalParameters
+                          omega = False
                           ):
   '''
   Plots the experimental schedule and the RL model estimate using plotly.
@@ -336,21 +336,41 @@ def plot_interactive_RL_model(
                                 description='beta:',
                                 continuous_update=False
                                 )
+  
+  omegaSlider = widgets.FloatSlider(
+                            value=0.5,
+                            max=1,
+                            min=0,
+                            step=0.01,
+                            description='omega:',
+                            continuous_update=False)
 
-  sliders = widgets.VBox(children=[
-                                  alphaSlider,
-                                  betaSlider])
+  if omega:
+      sliders = widgets.VBox(children=[
+                                    alphaSlider,
+                                    betaSlider,
+                                    omegaSlider])
+      # run the RL model
+      probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, omegaSlider.value, utility_function = utiity_function)
 
-  # run the RL model
-  probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, *additionalParameters, utility_function = utiity_function)
+  else:
+    sliders = widgets.VBox(children=[
+                                    alphaSlider,
+                                    betaSlider])
+    # run the RL model
+    probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, utility_function = utiity_function)
 
+  
   # call the figure function we wrote and make it interactive
   fig = go.FigureWidget(plot_schedule(opt1Rewarded, trueProbability, magOpt1, magOpt2, probOpt1, choiceProb1))
 
   # function to run if alpha or beta have changed
   def change_model(change):
     # rerun the RL model
-    probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, *additionalParameters, utility_function = utiity_function)
+    if omega:
+      probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, omegaSlider.value, utility_function = utiity_function)
+    else
+      probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, utility_function = utiity_function)
     # update the figure
     with fig.batch_update():
       fig.data[2].y = probOpt1
@@ -359,6 +379,8 @@ def plot_interactive_RL_model(
   # run the function if a slider value changes
   alphaSlider.observe(change_model, names="value")
   betaSlider.observe(change_model, names="value")
+  if omega:
+    omegaSlider.observe(change_model, names="value")
 
   # show the figure and the sliders
   display(widgets.VBox([sliders, fig]))
