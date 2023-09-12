@@ -142,8 +142,12 @@ def plot_schedule(
 
     if utility_fun is not None:
       # compute the utility of option 1 and option 2
-      utility1 = utility_fun(magOpt1, trueProbability, *utilityParameters)
-      utility2 = utility_fun(magOpt2, 1-trueProbability, *utilityParameters)
+      if len(utilityParameters) > 0:
+        utility1 = utility_fun(magOpt1, trueProbability, *utilityParameters)
+        utility2 = utility_fun(magOpt2, 1-trueProbability, *utilityParameters)
+      else:
+        utility1 = utility_fun(magOpt1, trueProbability)
+        utility2 = utility_fun(magOpt2, 1-trueProbability)
 
       # plot the utility difference
       fig.add_trace(
