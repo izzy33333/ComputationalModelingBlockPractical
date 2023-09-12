@@ -143,10 +143,11 @@ def plot_schedule(
     if utility1 is not None:
       
       # plot the utility difference
+      diff = utility1 - utility2
       fig.add_trace(
           go.Scatter(
               x = list(range(nTrials)),
-              y = utility1 - utility2,
+              y = diff,
               mode = 'lines',
               line = dict(color='red', dash='dash'),
               name = "utility option 1",
@@ -406,7 +407,6 @@ def plot_interactive_RL_model(
     utility1 = utility_function(magOpt1, probOpt1)
     utility2 = utility_function(magOpt2, 1 - probOpt1)
     
-  print(utility1 - utility2)
   # call the figure function we wrote and make it interactive
   fig = go.FigureWidget(plot_schedule(opt1Rewarded, trueProbability, magOpt1, magOpt2, probOpt1, choiceProb1, utility1, utility2))
 
@@ -426,9 +426,10 @@ def plot_interactive_RL_model(
     
     # update the figure
     with fig.batch_update():
+      diff = utility1 - utility2
       fig.data[2].y = probOpt1
       fig.data[3].y = choiceProb1
-      fig.data[7].y = utility1 - utility2
+      fig.data[7].y = diff
       fig.data[8].y = utility1
       fig.data[9].y = utility2
 
