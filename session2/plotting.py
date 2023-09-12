@@ -141,27 +141,14 @@ def plot_schedule(
         ))
 
     if utility1 is not None:
-      
-      # plot the utility difference
-      diff = utility1 - utility2
-      fig.add_trace(
-          go.Scatter(
-              x = list(range(nTrials)),
-              y = diff,
-              mode = 'lines',
-              line = dict(color='red', dash='dash'),
-              name = "utility option 1",
-              xaxis = 'x1',
-              yaxis = 'y1',
-          ))
-      
+            
       # plot the utility of option 1 and option 2
       fig.add_trace(
           go.Scatter(
               x = list(range(nTrials)),
               y = utility1,
               mode = 'lines',
-              line = dict(color='orange', dash='dash'),
+              line = dict(color='magenta'),
               name = "utility option 1",
               xaxis = 'x2',
               yaxis = 'y2',
@@ -171,7 +158,7 @@ def plot_schedule(
               x = list(range(nTrials)),
               y = utility2,
               mode = 'lines',
-              line = dict(color='green', dash='dash'),
+              line = dict(color='purple'),
               name = "utility option 2",
               xaxis = 'x2',
               yaxis = 'y2',
@@ -426,12 +413,10 @@ def plot_interactive_RL_model(
     
     # update the figure
     with fig.batch_update():
-      diff = utility1 - utility2
       fig.data[2].y = probOpt1
       fig.data[3].y = choiceProb1
-      fig.data[7].y = diff
-      fig.data[8].y = utility1
-      fig.data[9].y = utility2
+      fig.data[6].y = utility1
+      fig.data[7].y = utility2
 
   # run the function if a slider value changes
   alphaSlider.observe(change_model, names="value")
