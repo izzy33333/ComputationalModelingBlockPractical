@@ -50,6 +50,10 @@ def plot_schedule(
           from the plot.
         choice1(int array): whether option 1 (1) or option 2 (2) was chosen on
           each. Defaults to None, which excludes it from the plot.
+        utility1(float array): the utility of option 1 on each trial according to
+          the RL model. Defaults to None, which excludes it from the plot.
+        utility2(float array): the utility of option 2 on each trial according to
+          the RL model. Defaults to None, which excludes it from the plot.
 
   '''
   # compute number of trials
@@ -397,7 +401,9 @@ def plot_interactive_RL_model(
   # call the figure function we wrote and make it interactive
   fig = go.FigureWidget(plot_schedule(opt1Rewarded, trueProbability, magOpt1, magOpt2, probOpt1, choiceProb1, None, utility1, utility2))
 
-  
+  fig.update_layout(
+                  autosize=True,
+                  height=700)
   
   # function to run if alpha or beta have changed
   def change_model(change):
