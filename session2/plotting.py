@@ -143,6 +143,8 @@ def plot_schedule(
     if utility1 is not None:
       
       # plot the utility difference
+      print(utility1)
+      print(utility2)
       diff = utility1 - utility2
       fig.add_trace(
           go.Scatter(
