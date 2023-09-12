@@ -27,8 +27,8 @@ def plot_schedule(
     probOpt1    = None,
     choiceProb1 = None,
     choice1     = None,
-    utility_fun = None,
-    *utilityParameters
+    utility1    = None,
+    utility2    = None,
     ):
   '''
   Plots the experimental schedule and the RL model estimate using plotly.
@@ -140,15 +140,8 @@ def plot_schedule(
             yaxis = 'y2',
         ))
 
-    if utility_fun is not None:
-      # compute the utility of option 1 and option 2
-      if len(utilityParameters) > 0:
-        utility1 = utility_fun(magOpt1, trueProbability, *utilityParameters)
-        utility2 = utility_fun(magOpt2, 1-trueProbability, *utilityParameters)
-      else:
-        utility1 = utility_fun(magOpt1, trueProbability)
-        utility2 = utility_fun(magOpt2, 1-trueProbability)
-
+    if utility1 is not None:
+      
       # plot the utility difference
       fig.add_trace(
           go.Scatter(
@@ -339,7 +332,7 @@ def visualise_softmax(softmax):
 
 def plot_interactive_RL_model(
                           simulate_RL_model,
-                          utiity_function,
+                          utility_function,
                           opt1Rewarded, 
                           magOpt1, 
                           magOpt2, 
@@ -390,35 +383,53 @@ def plot_interactive_RL_model(
                             continuous_update=False)
 
   if omega:
-      sliders = widgets.VBox(children=[
-                                    alphaSlider,
-                                    betaSlider,
-                                    omegaSlider])
-      # run the RL model
-      probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, omegaSlider.value, utility_function = utiity_function)
+    sliders = widgets.VBox(children=[
+                                  alphaSlider,
+                                  betaSlider,
+                                  omegaSlider])
+    # run the RL model
+    probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, omegaSlider.value, utility_function = utility_function)
+    
+    # calcualte utility
+    utility1 = utility_function(magOpt1, probOpt1, omegaSlider.value)
+    utility2 = utility_function(magOpt2, 1 - probOpt1, omegaSlider.value)
 
   else:
     sliders = widgets.VBox(children=[
                                     alphaSlider,
                                     betaSlider])
+      
     # run the RL model
-    probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, utility_function = utiity_function)
+    probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, utility_function = utility_function)
+
+    # calcualte utility
+    utility1 = utility_function(magOpt1, probOpt1)
+    utility2 = utility_function(magOpt2, 1 - probOpt1)
+    
+  # call the figure function we wrote and make it interactive
+  fig = go.FigureWidget(plot_schedule(opt1Rewarded, trueProbability, magOpt1, magOpt2, probOpt1, choiceProb1, utility1, utility2))
 
   
-  # call the figure function we wrote and make it interactive
-  fig = go.FigureWidget(plot_schedule(opt1Rewarded, trueProbability, magOpt1, magOpt2, probOpt1, choiceProb1))
-
+  
   # function to run if alpha or beta have changed
   def change_model(change):
     # rerun the RL model
     if omega:
-      probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, omegaSlider.value, utility_function = utiity_function)
+      probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, omegaSlider.value, utility_function = utility_function)
+      utility1 = utility_function(magOpt1, probOpt1, omegaSlider.value)
+      utility2 = utility_function(magOpt2, 1 - probOpt1, omegaSlider.value)
     else:
-      probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, utility_function = utiity_function)
+      probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, utility_function = utility_function)
+      utility1 = utility_function(magOpt1, probOpt1)
+      utility2 = utility_function(magOpt2, 1 - probOpt1)
+    
     # update the figure
     with fig.batch_update():
       fig.data[2].y = probOpt1
       fig.data[3].y = choiceProb1
+      fig.data[7].y = utility1 - utility2
+      fig.data[8].y = utility1
+      fig.data[9].y = utility2
 
   # run the function if a slider value changes
   alphaSlider.observe(change_model, names="value")
