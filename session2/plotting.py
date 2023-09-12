@@ -294,23 +294,28 @@ def visualise_softmax(softmax):
   display(widgets.VBox([betaSlider, fig]))
 
 def plot_interactive_RL_model(
-                          simulate_RL_model, 
+                          simulate_RL_model,
+                          utiity_function,
                           opt1Rewarded, 
                           magOpt1, 
                           magOpt2, 
-                          trueProbability
+                          trueProbability,
+                          *additionalParameters
                           ):
   '''
   Plots the experimental schedule and the RL model estimate using plotly.
 
     Parameters:
         simulate_RL_model(function): The RL model to use to simulate the data.
+        utiity_function(function): The utility function to use in the RL model.
         opt1rewarded(int array): 1 if option 1 is rewarded on a trial, 0 if
           option 2 is rewarded on a trial.
         magOpt1(int array): The reward magnitude of option 1.
         magOpt2(int array): The reward magnitude of option 1.
         trueProbability(float array): The probability with which option 1 is
           rewareded on each trial.
+        *additionalParameters(float, optional): other parameters to pass onto the
+          utility function.
   '''
 
   # make sliders for alpha and beta
@@ -337,7 +342,7 @@ def plot_interactive_RL_model(
                                   betaSlider])
 
   # run the RL model
-  probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value)
+  probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, *additionalParameters, utility_function = utiity_function)
 
   # call the figure function we wrote and make it interactive
   fig = go.FigureWidget(plot_schedule(opt1Rewarded, trueProbability, magOpt1, magOpt2, probOpt1, choiceProb1))
@@ -345,7 +350,7 @@ def plot_interactive_RL_model(
   # function to run if alpha or beta have changed
   def change_model(change):
     # rerun the RL model
-    probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value)
+    probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, *additionalParameters, utility_function = utiity_function)
     # update the figure
     with fig.batch_update():
       fig.data[2].y = probOpt1
