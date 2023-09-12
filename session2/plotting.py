@@ -369,7 +369,7 @@ def plot_interactive_RL_model(
     # rerun the RL model
     if omega:
       probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, omegaSlider.value, utility_function = utiity_function)
-    else
+    else:
       probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, utility_function = utiity_function)
     # update the figure
     with fig.batch_update():
