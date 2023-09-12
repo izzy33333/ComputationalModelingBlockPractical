@@ -20,6 +20,7 @@ def load_blain(ID, data = blain_data):
   magOpt1       = np.empty(numTrials, dtype = int)
   magOpt2       = np.empty(numTrials, dtype = int)
   opt1Rewarded  = np.empty(numTrials, dtype = int)
+  
   for i in range(numTrials):
     choice1[i]  = 2 - data[order]["main"][0][ID]["list_pair"][0][0][int(data[order]["main"][0][ID]["maintask"][0][0][i,4]-1),i]
     magOpt1[i]  = data[order]["main"][0][ID]["mat_mag"][0][0][data[order]["main"][0][ID]["index_mag"][0][0][:,i][0]-1,0]
