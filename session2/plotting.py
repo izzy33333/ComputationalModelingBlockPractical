@@ -406,7 +406,7 @@ def plot_interactive_RL_model(
     utility1 = utility_function(magOpt1, probOpt1)
     utility2 = utility_function(magOpt2, 1 - probOpt1)
     
-  print(utility1)
+  print(utility2)
   # call the figure function we wrote and make it interactive
   fig = go.FigureWidget(plot_schedule(opt1Rewarded, trueProbability, magOpt1, magOpt2, probOpt1, choiceProb1, utility1, utility2))
 
