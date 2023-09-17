@@ -1,76 +1,187 @@
-# numpy is a libarary used to do all kinds of mathematical operations
-import numpy as np
+  # numpy is a libarary used to do all kinds of mathematical operations
+  import numpy as np
 
-# pandas allows us to organise data as tables (called "dataframes")
-import pandas as pd
+  # pandas allows us to organise data as tables (called "dataframes")
+  import pandas as pd
 
-# we use the minimize function from scipy to fit models
-from scipy.optimize import minimize
+  # we use the minimize function from scipy to fit models
+  from scipy.optimize import minimize
 
-# import the logistic function
-from scipy.stats import logistic
+  # import the logistic function
+  from scipy.stats import logistic
 
-def multiplicative_utility(mag, prob):
-  return mag*prob
+  from loading import *
 
-def additive_utility(mag, prob, phi):
-  return phi*prob + (1-phi)*(mag/80)
+  def multiplicative_utility(mag, prob):
+    return mag*prob
 
-def loglikelihood_RL_model(opt1Rewarded,
-                           magOpt1,
-                           magOpt2,
-                           choice1,
-                           alpha,
-                           beta,
-                           *additonalParameters,
-                           startingProb = 0.5,
-                           utility_function = multiplicative_utility,
-                           choice_function = logistic.cdf):
-  '''
-  Returns the log likelihiood of the data given the choices and the model
+  def additive_utility(mag, prob, phi):
+    return phi*prob + (1-phi)*(mag/80)
 
-    Parameters:
-        opt1rewarded(bool array): True if option 1 is rewarded on a trial, False
-          if option 2 is rewarded on a trial.
-        magOpt1(int array): reward points between 1 and 100 for option 1 on each
-          trial
-        magOpt2(int array): reward points between 1 and 100 for option 2 on each
-           trial
-        alpha(float): fixed learning rate, greater than 0, less than/equal to 1
-        beta(float): fixed inverse temperature, greater than 0
-        *additionalParameters(float, optional): other parameters to pass onto
-          the utility function
-        startingProb(float): starting probability (defaults to 0.5).
-        utility_function(function): what utility function to use to combine
-          reward magnitude and probability. Defaults to multiplicative_utility
-        choice_function(function): what choice function to use to decide
-          between utility1 and utility2. Has free parameter beta. Defaults
-          to softmax.
+  def loglikelihood_RL_model(opt1Rewarded,
+                            magOpt1,
+                            magOpt2,
+                            choice1,
+                            alpha,
+                            beta,
+                            *additonalParameters,
+                            startingProb = 0.5,
+                            utility_function = multiplicative_utility,
+                            choice_function = logistic.cdf):
+    '''
+    Returns the log likelihiood of the data given the choices and the model
 
-    Returns:
-        LL(float): total log likelihood of the data given the input parameters
-  '''
+      Parameters:
+          opt1rewarded(bool array): True if option 1 is rewarded on a trial, False
+            if option 2 is rewarded on a trial.
+          magOpt1(int array): reward points between 1 and 100 for option 1 on each
+            trial
+          magOpt2(int array): reward points between 1 and 100 for option 2 on each
+            trial
+          alpha(float): fixed learning rate, greater than 0, less than/equal to 1
+          beta(float): fixed inverse temperature, greater than 0
+          *additionalParameters(float, optional): other parameters to pass onto
+            the utility function
+          startingProb(float): starting probability (defaults to 0.5).
+          utility_function(function): what utility function to use to combine
+            reward magnitude and probability. Defaults to multiplicative_utility
+          choice_function(function): what choice function to use to decide
+            between utility1 and utility2. Has free parameter beta. Defaults
+            to softmax.
 
-  nTrials = len(opt1Rewarded)
+      Returns:
+          LL(float): total log likelihood of the data given the input parameters
+    '''
 
-  # initialise some vectors we're going to assign into
-  probOpt1 = np.zeros(nTrials, dtype = float)
-  delta    = np.zeros(nTrials, dtype = float)
+    nTrials = len(opt1Rewarded)
 
-  # set the first trial's prediction to be equal to the starting probability
-  probOpt1[0] = startingProb
+    # set the first trial's prediction to be equal to the starting probability
+    probOpt1 = startingProb
 
-  # initialise tracking the log likelhood
-  LL = 0
+    # initialise tracking the log likelhood
+    LL = 0
 
-  for t in range(nTrials-1):
-        utility1 = utility_function(magOpt1[t], probOpt1[t], *additonalParameters)
-        utility2 = utility_function(magOpt2[t], (1 - probOpt1[t]), *additonalParameters)
-        if choice1[t] == 1:
-          LL += np.log(choice_function((utility1-utility2)*beta))
-        else:
-          LL += np.log(choice_function((utility2-utility1)*beta))
-        delta[t] = opt1Rewarded[t] - probOpt1[t]
-        probOpt1[t+1] = probOpt1[t] + alpha*delta[t]
+    for t in range(nTrials-1):
+          utility1 = utility_function(magOpt1[t], probOpt1, *additonalParameters)
+          utility2 = utility_function(magOpt2[t], (1 - probOpt1), *additonalParameters)
+          if choice1[t] == 1:
+            LL += np.log(choice_function((utility1-utility2)*beta))
+          else:
+            LL += np.log(choice_function((utility2-utility1)*beta))
+          delta = opt1Rewarded[t] - probOpt1
+          probOpt1 = probOpt1 + alpha * delta
 
-  return LL
+    return LL
+
+
+  def fit_participant_data(utility_function):
+    
+    numSubjects = 75
+    
+    if utility_function == multiplicative_utility:
+    
+      fitData1Alpha = pd.DataFrame(np.zeros((numSubjects, 4)),
+                                  columns = ["alpha",
+                                              "beta",
+                                              "LL",
+                                              "BIC"])
+
+      fitData2Alpha = pd.DataFrame(np.zeros((numSubjects, 5)),
+                                  columns = ["alphaStable",
+                                              "alphaVolatile",
+                                              "beta",
+                                              "LL",
+                                              "BIC"])
+    elif utility_function == additive_utility:
+      
+      fitData1Alpha = pd.DataFrame(np.zeros((numSubjects, 5)),
+                                  columns = ["alpha",
+                                              "beta",
+                                              "phi",
+                                              "LL",
+                                              "BIC"])
+
+      fitData2Alpha = pd.DataFrame(np.zeros((numSubjects, 6)),
+                                  columns = ["alphaStable",
+                                              "alphaVolatile",
+                                              "beta",
+                                              "phi",
+                                              "LL",
+                                              "BIC"])
+
+
+    for s in range(numSubjects):
+      if s % 5 == 0:
+        display("fitting subject " + str(s) + "/" + str(numSubjects))
+
+      # load in data
+      trueProbability, choice1, magOpt1, magOpt2, opt1Rewarded = load_blain(s)
+
+      if utility_function == multiplicative_utility:
+        # create functions to be minimized
+        def min_fun(x):
+          LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), np.exp(x[1]), utility_function = utility_function)
+          LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[0]), np.exp(x[1]), utility_function = utility_function)
+          return - (LL1 + LL2)
+
+        # fit the data of this participant
+        fitted_parameters_1_alpha = minimize(min_fun, [0, -1.5], method = 'Nelder-Mead')
+        
+        fitData1Alpha.BIC[s]   = 2*np.log(160) + fitted_parameters_1_alpha.fun
+        
+      elif utility_function == additive_utility:
+        # create functions to be minimized
+        def min_fun(x):
+          LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), np.exp(x[1]), logistic.cdf(x[2]), utility_function = utility_function)
+          LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[0]), np.exp(x[1]), logistic.cdf(x[2]), utility_function = utility_function)
+          return - (LL1 + LL2)
+
+        # fit the data of this participant
+        fitted_parameters_1_alpha = minimize(min_fun, [0, -1.5, 0], method = 'Nelder-Mead')
+        
+        fitData1Alpha.phi[s] = logistic.cdf(fitted_parameters_1_alpha.x[2])
+        fitData1Alpha.BIC[s] = 3*np.log(160) + fitted_parameters_1_alpha.fun
+
+      # save the data
+      fitData1Alpha.alpha[s] = logistic.cdf(fitted_parameters_1_alpha.x[0])
+      fitData1Alpha.beta[s]  = np.exp(fitted_parameters_1_alpha.x[1])
+      fitData1Alpha.LL[s]    = -fitted_parameters_1_alpha.fun
+      
+      if utility_function == multiplicative_utility:  
+        # create functions to be minimized
+        def min_fun(x):
+          LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), np.exp(x[2]), utility_function = utility_function)
+          LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[1]), np.exp(x[2]), utility_function = utility_function)
+          return - (LL1 + LL2)
+
+        # fit the data of this participant
+        fitted_parameters_2_alpha = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1]], method = 'Nelder-Mead')
+        
+        fitData2Alpha.BIC[s]  = 3*np.log(160) + fitted_parameters_2_alpha.fun
+        
+      elif utility_function == additive_utility:
+        # create functions to be minimized
+        def min_fun(x):
+          LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), np.exp(x[2]), logistic.cdf(x[3]), utility_function = utility_function)
+          LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[1]), np.exp(x[2]), logistic.cdf(x[3]), utility_function = utility_function)
+          return - (LL1 + LL2)
+
+        # fit the data of this participant
+        fitted_parameters_2_alpha = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1], fitted_parameters_1_alpha.x[2]], method = 'Nelder-Mead')
+
+        fitData2Alpha.phi[s] = logistic.cdf(fitted_parameters_2_alpha.x[3])
+        fitData2Alpha.BIC[s] = 4*np.log(160) + fitted_parameters_2_alpha.fun
+        
+      # save the data
+      if s < 37:
+        fitData2Alpha.alphaStable[s]   = logistic.cdf(fitted_parameters_2_alpha.x[0])
+        fitData2Alpha.alphaVolatile[s] = logistic.cdf(fitted_parameters_2_alpha.x[1])
+
+      else:
+        fitData2Alpha.alphaStable[s]   = logistic.cdf(fitted_parameters_2_alpha.x[1])
+        fitData2Alpha.alphaVolatile[s] = logistic.cdf(fitted_parameters_2_alpha.x[0])
+
+      fitData2Alpha.beta[s] = np.exp(fitted_parameters_2_alpha.x[2])
+      fitData2Alpha.LL[s]   = -fitted_parameters_2_alpha.fun
+      
+    return fitData1Alpha, fitData2Alpha
