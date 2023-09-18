@@ -134,7 +134,7 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
         return - (LL1 + LL2)
 
       # fit the data of this participant
-      fitted_parameters_1_alpha = minimize(min_fun, [0, -1.5], method = 'Nelder-Mead')
+      fitted_parameters_1_alpha = minimize(min_fun, [0, -1.5], method = 'BFGS')
       
       fitData1Alpha.BIC[s]   = 2*np.log(160) + fitted_parameters_1_alpha.fun
       
@@ -146,7 +146,7 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
         return - (LL1 + LL2)
 
       # fit the data of this participant
-      fitted_parameters_1_alpha = minimize(min_fun, [0, -1.5, 0], method = 'Nelder-Mead')
+      fitted_parameters_1_alpha = minimize(min_fun, [0, -1.5, 0], method = 'BFGS')
       
       fitData1Alpha.phi[s] = logistic.cdf(fitted_parameters_1_alpha.x[2])
       fitData1Alpha.BIC[s] = 3*np.log(160) + fitted_parameters_1_alpha.fun
@@ -164,7 +164,7 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
         return - (LL1 + LL2)
 
       # fit the data of this participant
-      fitted_parameters_2_alpha = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1]], method = 'Nelder-Mead')
+      fitted_parameters_2_alpha = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1]], method = 'BFGS')
       
       fitData2Alpha.BIC[s]  = 3*np.log(160) + fitted_parameters_2_alpha.fun
       
@@ -176,7 +176,7 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
         return - (LL1 + LL2)
 
       # fit the data of this participant
-      fitted_parameters_2_alpha = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1], fitted_parameters_1_alpha.x[2]], method = 'Nelder-Mead')
+      fitted_parameters_2_alpha = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1], fitted_parameters_1_alpha.x[2]], method = 'BFGS')
 
       fitData2Alpha.phi[s] = logistic.cdf(fitted_parameters_2_alpha.x[3])
       fitData2Alpha.BIC[s] = 4*np.log(160) + fitted_parameters_2_alpha.fun
