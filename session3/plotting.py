@@ -179,12 +179,22 @@ def plot_schedule(
 
   return fig
 
-def visualise_alpha_difference(stableAlphas, volatileAlphas, title):
+def visualise_alpha_distributions(stableAlphas, volatileAlphas, title):
   fig = px.histogram(pd.DataFrame({"stable block": stableAlphas,
                                   "volatile block": volatileAlphas}).melt(),
                                   color="variable", x="value", marginal="box", barmode="overlay")
 
   fig.update_layout(title= title, xaxis_title="learning rate", legend_title_text="")
   fig.update_xaxes(range=[0, 1])
+
+  fig.show()
+  
+  
+def visualise_alpha_difference(stableAlphas, volatileAlphas, title):
+  fig = px.histogram(pd.DataFrame({"volatile alpha - stable able": volatileAlphas - stableAlphas}).melt(),
+                                  color="variable", x="value", marginal="box", barmode="overlay")
+
+  fig.update_layout(title= title, xaxis_title="learning rate", legend_title_text="", showlegend=False)
+  fig.update_xaxes(range=[-1, 1])
 
   fig.show()
