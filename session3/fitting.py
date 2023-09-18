@@ -74,7 +74,7 @@ def loglikelihood_RL_model(opt1Rewarded,
   return LL
 
 
-def fit_participant_data(utility_function):
+def fit_participant_data(utility_function, simulate = False, alpha_S = None, alpha_V = None, beta = None):
   
   numSubjects = 75
   
@@ -116,6 +116,15 @@ def fit_participant_data(utility_function):
 
     # load in data
     trueProbability, choice1, magOpt1, magOpt2, opt1Rewarded = load_blain(s)
+    
+    if simulate:
+      # simulate an artificial participant
+      if s < 37:
+        choice1[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_S[s], beta[s])
+        choice1[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_V[s], beta[s])
+      else:
+        choice1[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_V[s], beta[s])
+        choice1[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[s], beta[s])
 
     if utility_function == multiplicative_utility:
       # create functions to be minimized
@@ -185,3 +194,83 @@ def fit_participant_data(utility_function):
     fitData2Alpha.LL[s]   = -fitted_parameters_2_alpha.fun
     
   return fitData1Alpha, fitData2Alpha
+
+
+def simulate_RL_model(opt1Rewarded,
+                      magOpt1,
+                      magOpt2,
+                      alpha,
+                      beta,
+                      *additonalParameters,
+                      startingProb = 0.5,
+                      utility_function = multiplicative_utility):
+  '''
+  Returns how likely option 1 is rewarded on each trial, the probability of
+  choosing option 1 on a trial, and a simulated choice for each trial
+
+    Parameters:
+        opt1rewarded(bool array): True if option 1 is rewarded on a trial, False
+          if option 2 is rewarded on a trial.
+        magOpt1(int array): reward points between 1 and 100 for option 1 on each
+          trial
+        magOpt2(int array): reward points between 1 and 100 for option 2 on each
+           trial
+        alpha(float): fixed learning rate, greater than 0, less than/equal to 1
+        beta(float): fixed inverse temperature, greater than 0
+        *additionalParameters(float, optional): other parameters to pass onto
+          the utility function, for example, the omega used in additive utility.
+        startingProb(float): starting probability (defaults to 0.5).
+        utility_function(function): what utility function to use to combine
+          reward magnitude and probability. Defaults to multiplicative_utility
+        choice_function(function): what choice function to use to decide
+          between utility1 and utility2. Has free parameter beta. Defaults
+          to softmax.
+
+    Returns:
+        probOpt1(float array): how likely option 1 is rewarded on each trial
+          according to the RL model.
+        choiceProb1(float array): the probability of choosing option 1 on each
+          trial when combining infrmation about magnitude and probability
+  '''
+
+  # check that alpha has been set appropriately
+  assert alpha > 0, 'Learning rate (alpha) must be greater than 0'
+  assert alpha <= 1,'Learning rate (alpha) must be less than or equal to 1'
+
+  # check that inverse temperateure has been set appropriately
+  assert beta >= 0, 'beta must be greater or equal than 0'
+
+  # check that startingProb has been set appropriately
+  assert startingProb >= 0, 'startingProb must be greater or equal than 0'
+  assert startingProb <= 1, 'startingProb must be less than or equal to 1'
+
+  # calculate the number of trials
+  nTrials = len(opt1Rewarded)
+
+  # pre-create some vectors we're going to assign into
+  probOpt1    = np.zeros(nTrials, dtype = float)
+  delta       = np.zeros(nTrials, dtype = float)
+  choiceProb1 = np.zeros(nTrials, dtype = float)
+
+  # set the first trial's prediction to be equal to the starting probability
+  probOpt1[0] = startingProb
+
+  for t in range(nTrials-1):
+        # calculate the utility of the two options. *additionalParameters would only be needed
+        # if the utility function has >2 inputs, which is not the case for multiplicative
+        # utility.
+        utility1 = utility_function(magOpt1[t], probOpt1[t], *additonalParameters)
+        utility2 = utility_function(magOpt2[t], (1 - probOpt1[t]), *additonalParameters)
+
+        # get the probability of making choice 1
+        choiceProb1[t] = logistic.cdf((utility1-utility2)* beta)
+
+        # calculate the prediction error
+        delta[t] = opt1Rewarded[t] - probOpt1[t]
+
+        # update the probability of option 1 being rewarded
+        probOpt1[t+1] = probOpt1[t] + alpha*delta[t]
+  
+  choice1 = (choiceProb1 > rng.random(len(opt1Rewarded))).astype(int)
+
+  return choice1
