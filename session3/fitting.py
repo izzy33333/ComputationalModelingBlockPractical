@@ -74,7 +74,7 @@ def loglikelihood_RL_model(opt1Rewarded,
   return LL
 
 
-def fit_participant_data(utility_function, simulate = False, alpha_S = None, alpha_V = None, beta = None):
+def fit_participant_data(utility_function, simulate = False, alpha_S = None, alpha_V = None, beta = None, rng = np.random.default_rng(12345)):
   
   numSubjects = 75
   
@@ -120,11 +120,11 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
     if simulate:
       # simulate an artificial participant
       if s < 37:
-        choice1[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_S[s], beta[s])
-        choice1[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_V[s], beta[s])
+        choice1[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_S[s], beta[s], rng = rng)
+        choice1[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_V[s], beta[s], rng = rng)
       else:
-        choice1[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_V[s], beta[s])
-        choice1[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[s], beta[s])
+        choice1[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_V[s], beta[s], rng = rng)
+        choice1[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[s], beta[s], rng = rng)
 
     if utility_function == multiplicative_utility:
       # create functions to be minimized
@@ -203,7 +203,8 @@ def simulate_RL_model(opt1Rewarded,
                       beta,
                       *additonalParameters,
                       startingProb = 0.5,
-                      utility_function = multiplicative_utility):
+                      utility_function = multiplicative_utility,
+                      rng = np.random.default_rng(12345)):
   '''
   Returns how likely option 1 is rewarded on each trial, the probability of
   choosing option 1 on a trial, and a simulated choice for each trial
