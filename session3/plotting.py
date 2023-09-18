@@ -186,6 +186,14 @@ def visualise_alpha_distributions(stableAlphas, volatileAlphas, title):
 
   fig.update_layout(title= title, xaxis_title="learning rate", legend_title_text="")
   fig.update_xaxes(range=[0, 1])
+  
+  fig.update_traces(xbins=dict(
+        start=0.0,
+        end=1.0,
+        size=0.05
+    ), 
+    row = 1
+    )
 
   fig.show()
   
@@ -196,5 +204,13 @@ def visualise_alpha_difference(stableAlphas, volatileAlphas, title):
 
   fig.update_layout(title= title, xaxis_title="learning rate", legend_title_text="", showlegend=False)
   fig.update_xaxes(range=[-1, 1])
+  
+  fig.update_traces(xbins=dict(
+        start=-1.0,
+        end=1.0,
+        size=0.1
+    ), 
+    row = 1
+    )
 
   fig.show()

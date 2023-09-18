@@ -111,8 +111,10 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
 
 
   for s in range(numSubjects):
-    if s % 5 == 0:
-      display("fitting subject " + str(s) + "/" + str(numSubjects))
+    # if s % 5 == 0:
+    #   display("fitting subject " + str(s) + "/" + str(numSubjects))
+    print("fitting subject " + str(s+1) + "/" + str(numSubjects), end="\r", flush=True)
+    
 
     # load in data
     trueProbability, choice1, magOpt1, magOpt2, opt1Rewarded = load_blain(s)
