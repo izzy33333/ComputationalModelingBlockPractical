@@ -74,7 +74,7 @@ def loglikelihood_RL_model(opt1Rewarded,
   return LL
 
 
-def fit_participant_data(utility_function, simulate = False, alpha_S = None, alpha_V = None, beta = None, rng = np.random.default_rng(12345)):
+def fit_participant_data(utility_function, simulate = False, alpha_S = None, alpha_V = None, beta = None, rng = np.random.default_rng(12345), method = 'BFGS'):
   
   numSubjects = 75
   
@@ -111,9 +111,8 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
 
 
   for s in range(numSubjects):
-    # if s % 5 == 0:
-    #   display("fitting subject " + str(s) + "/" + str(numSubjects))
-    print("fitting subject " + str(s+1) + "/" + str(numSubjects), end="\r", flush=True)
+    if s % 5 == 0:
+      display("fitting subject " + str(s) + "/" + str(numSubjects))
     
 
     # load in data
@@ -136,9 +135,9 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
         return - (LL1 + LL2)
 
       # fit the data of this participant
-      fitted_parameters_1_alpha = minimize(min_fun, [0, -1.5], method = 'BFGS')
+      fitted_parameters_1_alpha = minimize(min_fun, [0, -1.5], method = method)
       
-      fitData1Alpha.BIC[s]   = 2*np.log(160) + fitted_parameters_1_alpha.fun
+      fitData1Alpha.BIC[s]   = 2*np.log(160) + 2*fitted_parameters_1_alpha.fun
       
     elif utility_function == additive_utility:
       # create functions to be minimized
@@ -148,10 +147,10 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
         return - (LL1 + LL2)
 
       # fit the data of this participant
-      fitted_parameters_1_alpha = minimize(min_fun, [0, -1.5, 0], method = 'BFGS')
+      fitted_parameters_1_alpha = minimize(min_fun, [0, -1.5, 0], method = method)
       
       fitData1Alpha.phi[s] = logistic.cdf(fitted_parameters_1_alpha.x[2])
-      fitData1Alpha.BIC[s] = 3*np.log(160) + fitted_parameters_1_alpha.fun
+      fitData1Alpha.BIC[s] = 3*np.log(160) + 2*fitted_parameters_1_alpha.fun
 
     # save the data
     fitData1Alpha.alpha[s] = logistic.cdf(fitted_parameters_1_alpha.x[0])
@@ -166,9 +165,9 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
         return - (LL1 + LL2)
 
       # fit the data of this participant
-      fitted_parameters_2_alpha = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1]], method = 'BFGS')
+      fitted_parameters_2_alpha = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1]], method = method)
       
-      fitData2Alpha.BIC[s]  = 3*np.log(160) + fitted_parameters_2_alpha.fun
+      fitData2Alpha.BIC[s]  = 3*np.log(160) + 2*fitted_parameters_2_alpha.fun
       
     elif utility_function == additive_utility:
       # create functions to be minimized
@@ -178,10 +177,10 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
         return - (LL1 + LL2)
 
       # fit the data of this participant
-      fitted_parameters_2_alpha = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1], fitted_parameters_1_alpha.x[2]], method = 'BFGS')
+      fitted_parameters_2_alpha = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1], fitted_parameters_1_alpha.x[2]], method = method)
 
       fitData2Alpha.phi[s] = logistic.cdf(fitted_parameters_2_alpha.x[3])
-      fitData2Alpha.BIC[s] = 4*np.log(160) + fitted_parameters_2_alpha.fun
+      fitData2Alpha.BIC[s] = 4*np.log(160) + 2*fitted_parameters_2_alpha.fun
       
     # save the data
     if s < 37:
