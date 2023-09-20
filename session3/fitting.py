@@ -80,29 +80,33 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
   
   if utility_function == multiplicative_utility:
   
-    fitData1Alpha = pd.DataFrame(np.zeros((numSubjects, 4)),
-                                columns = ["alpha",
+    fitData1Alpha = pd.DataFrame(np.zeros((numSubjects, 5)),
+                                columns = ["ID",
+                                           "alpha",
                                             "beta",
                                             "LL",
                                             "BIC"])
 
-    fitData2Alpha = pd.DataFrame(np.zeros((numSubjects, 5)),
-                                columns = ["alphaStable",
+    fitData2Alpha = pd.DataFrame(np.zeros((numSubjects, 6)),
+                                columns = ["ID",
+                                           "alphaStable",
                                             "alphaVolatile",
                                             "beta",
                                             "LL",
                                             "BIC"])
   elif utility_function == additive_utility:
     
-    fitData1Alpha = pd.DataFrame(np.zeros((numSubjects, 5)),
-                                columns = ["alpha",
+    fitData1Alpha = pd.DataFrame(np.zeros((numSubjects, 6)),
+                                columns = ["ID",
+                                           "alpha",
                                             "beta",
                                             "phi",
                                             "LL",
                                             "BIC"])
 
-    fitData2Alpha = pd.DataFrame(np.zeros((numSubjects, 6)),
-                                columns = ["alphaStable",
+    fitData2Alpha = pd.DataFrame(np.zeros((numSubjects, 7)),
+                                columns = ["ID",
+                                           "alphaStable",
                                             "alphaVolatile",
                                             "beta",
                                             "phi",
@@ -156,6 +160,7 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
     fitData1Alpha.alpha[s] = logistic.cdf(fitted_parameters_1_alpha.x[0])
     fitData1Alpha.beta[s]  = np.exp(fitted_parameters_1_alpha.x[1])
     fitData1Alpha.LL[s]    = -fitted_parameters_1_alpha.fun
+    fitData1Alpha.ID[s]    = s
     
     if utility_function == multiplicative_utility:  
       # create functions to be minimized
@@ -193,6 +198,7 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
 
     fitData2Alpha.beta[s] = np.exp(fitted_parameters_2_alpha.x[2])
     fitData2Alpha.LL[s]   = -fitted_parameters_2_alpha.fun
+    fitData2Alpha.ID[s]   = s
     
   return fitData1Alpha, fitData2Alpha
 

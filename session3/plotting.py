@@ -214,3 +214,57 @@ def visualise_alpha_difference(stableAlphas, volatileAlphas, title):
     )
 
   fig.show()
+  
+def plot_parameter_corrs(df):
+  if any(df.columns == 'alphaStable'):
+    if any(df.columns == 'phi'):
+      fig = go.Figure(data=go.Splom(
+                    dimensions=[dict(label='alpha stable',
+                                    values=df.alphaStable),
+                                dict(label='alpha volatile',
+                                    values=df.alphaVolatile),
+                                dict(label='beta',
+                                    values=df.beta),
+                                dict(label='phi',
+                                    values=df['phi'])],
+                    showupperhalf=False,
+                    hovertemplate = 'participant ID: %{customdata}',
+                    customdata = df.ID
+                    ))
+    else:
+      fig = go.Figure(data=go.Splom(
+                    dimensions=[dict(label='alpha stable',
+                                    values=df.alphaStable),
+                                dict(label='alpha volatile',
+                                    values=df.alphaVolatile),
+                                dict(label='beta',
+                                    values=df.beta)],
+                    showupperhalf=False,
+                    hovertemplate = 'participant ID: %{customdata}',
+                    customdata = df.ID
+                    ))
+  else:
+    if any(df.columns == 'phi'):
+      fig = go.Figure(data=go.Splom(
+                    dimensions=[dict(label='alpha',
+                                    values=df.alpha),
+                                dict(label='beta',
+                                    values=df.beta),
+                                dict(label='phi',
+                                    values=df['phi'])],
+                    showupperhalf=False,
+                    hovertemplate = 'participant ID: %{customdata}',
+                    customdata = df.ID
+                    ))
+    else:
+      fig = go.Figure(data=go.Splom(
+                    dimensions=[dict(label='alpha',
+                                    values=df.alphaStable),
+                                dict(label='beta',
+                                    values=df.beta)],
+                    showupperhalf=False,
+                    hovertemplate = 'participant ID: %{customdata}',
+                    customdata = df.ID
+                    ))
+    
+    fig.show()
