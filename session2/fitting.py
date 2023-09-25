@@ -77,11 +77,12 @@ def loglikelihood_trajectory(
                         opt1Rewarded,
                         magOpt1,
                         magOpt2,
-                        choice1
+                        choice1,
+                        method = 'BFGS' 
                     ):
     '''
     Returns the log likelihiood of the data given the choices and the model for
-        every step a Nelder-Mead solver takes on the likelihood landscape
+        every step a solver takes on the likelihood landscape
 
     Parameters:
         opt1rewarded(bool array): True if option 1 is rewarded on a trial, False
@@ -120,7 +121,7 @@ def loglikelihood_trajectory(
     # fit the data of this simulated participant
     recovered_parameters = minimize(min_fun, # the function we want to minimise
                                     [2, -0.5], # inital values for alpha and beta that the algorithm uses
-                                    method = 'Nelder-Mead', # what minimisation algorithm to use
+                                    method = method, # what minimisation algorithm to use
                                     options = {"return_all": True}) # this outputs every step the solver takes, which allows us to plot it
 
 
@@ -141,7 +142,8 @@ def run_paramterer_recovery(
                         simulate_RL_model,
                         generate_schedule,
                         trueProbability,
-                        rng
+                        rng,
+                        method = 'BFGS'
                         ):
     '''
     This function simulates participants with different learning rates and then fits the data . This allows us to see if the model can recover the true learning rates.
@@ -187,7 +189,7 @@ def run_paramterer_recovery(
                 return -loglikelihood_RL_model(opt1Rewarded, magOpt1, magOpt2, choice1, logistic.cdf(x[0]), np.exp(x[1]))
 
             # fit the data of this simulated participant
-            recovered_parameters = minimize(min_fun, [0, -1.5], method = 'Nelder-Mead')
+            recovered_parameters = minimize(min_fun, [0, -1.5], method = method)
 
             # save the data of the current iteration
             recoveryData.simulatedAlpha[counter] = simulatedAlphaRange[alpha]
@@ -209,7 +211,8 @@ def run_paramterer_recovery_with_difference(
                 generate_schedule,       
                 trueProbabilityStable,   
                 trueProbabilityVolatile, 
-                rng                   
+                rng,
+                method = 'BFGS'                   
                 ):
     ''' 
     This function simulates participants with different learning rates in the stable and volatile conditions, and then fits the data with a model that assumes the same learning rate in both conditions. This allows us to see if the model can recover the true learning rates in the stable and volatile conditions.
@@ -257,7 +260,7 @@ def run_paramterer_recovery_with_difference(
             return -(LL1 + LL2)
 
         # fit the data of this simulated participant
-        pars = minimize(min_fun, [0, 0, -1.5], method = 'Nelder-Mead')
+        pars = minimize(min_fun, [0, 0, -1.5], method = method)
 
         fittedParameters["alpha stable"][p] = logistic.cdf(pars.x[0])
         fittedParameters["alpha volatile"][p] = logistic.cdf(pars.x[1])
