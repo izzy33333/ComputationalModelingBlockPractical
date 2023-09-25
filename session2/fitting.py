@@ -78,7 +78,7 @@ def loglikelihood_trajectory(
                         magOpt1,
                         magOpt2,
                         choice1,
-                        method = 'BFGS' 
+                        method = 'Nelder-Mead' 
                     ):
     '''
     Returns the log likelihiood of the data given the choices and the model for
@@ -143,7 +143,7 @@ def run_paramterer_recovery(
                         generate_schedule,
                         trueProbability,
                         rng,
-                        method = 'BFGS'
+                        method = 'Nelder-Mead'
                         ):
     '''
     This function simulates participants with different learning rates and then fits the data . This allows us to see if the model can recover the true learning rates.
@@ -212,7 +212,7 @@ def run_paramterer_recovery_with_difference(
                 trueProbabilityStable,   
                 trueProbabilityVolatile, 
                 rng,
-                method = 'BFGS'                   
+                method = 'Nelder-Mead'                   
                 ):
     ''' 
     This function simulates participants with different learning rates in the stable and volatile conditions, and then fits the data with a model that assumes the same learning rate in both conditions. This allows us to see if the model can recover the true learning rates in the stable and volatile conditions.
