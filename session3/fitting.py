@@ -15,8 +15,8 @@ from loading import *
 def multiplicative_utility(mag, prob):
   return mag*prob
 
-def additive_utility(mag, prob, phi):
-  return phi*prob + (1-phi)*(mag/80)
+def additive_utility(mag, prob, omega):
+  return omega*prob + (1-omega)*(mag/80)
 
 def loglikelihood_RL_model(opt1Rewarded,
                           magOpt1,
@@ -100,7 +100,7 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
                                 columns = ["ID",
                                            "alpha",
                                             "beta",
-                                            "phi",
+                                            "omega",
                                             "LL",
                                             "BIC"])
 
@@ -109,7 +109,7 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
                                            "alphaStable",
                                             "alphaVolatile",
                                             "beta",
-                                            "phi",
+                                            "omega",
                                             "LL",
                                             "BIC"])
 
@@ -153,7 +153,7 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
       # fit the data of this participant
       fitted_parameters_1_alpha = minimize(min_fun, [0, -1.5, 0], method = method)
       
-      fitData1Alpha.phi[s] = logistic.cdf(fitted_parameters_1_alpha.x[2])
+      fitData1Alpha.omega[s] = logistic.cdf(fitted_parameters_1_alpha.x[2])
       fitData1Alpha.BIC[s] = 3*np.log(160) + 2*fitted_parameters_1_alpha.fun
 
     # save the data
@@ -184,7 +184,7 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
       # fit the data of this participant
       fitted_parameters_2_alpha = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1], fitted_parameters_1_alpha.x[2]], method = method)
 
-      fitData2Alpha.phi[s] = logistic.cdf(fitted_parameters_2_alpha.x[3])
+      fitData2Alpha.omega[s] = logistic.cdf(fitted_parameters_2_alpha.x[3])
       fitData2Alpha.BIC[s] = 4*np.log(160) + 2*fitted_parameters_2_alpha.fun
       
     # save the data

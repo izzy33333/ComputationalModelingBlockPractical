@@ -145,7 +145,7 @@ def visualise_alpha_difference(stableAlphas, volatileAlphas, title):
   
 def plot_parameter_corrs(df):
   if any(df.columns == 'alphaStable'):
-    if any(df.columns == 'phi'):
+    if any(df.columns == 'omega'):
       fig = go.Figure(data=go.Splom(
                     dimensions=[dict(label='alpha stable',
                                     values=df.alphaStable),
@@ -153,8 +153,8 @@ def plot_parameter_corrs(df):
                                     values=df.alphaVolatile),
                                 dict(label='beta',
                                     values=df.beta),
-                                dict(label='phi',
-                                    values=df['phi'])],
+                                dict(label='omega',
+                                    values=df['omega'])],
                     showupperhalf=False,
                     diagonal_visible=False, 
                     hovertemplate = 'participant ID: %{customdata}',
@@ -174,14 +174,14 @@ def plot_parameter_corrs(df):
                     customdata = df.ID
                     ))
   else:
-    if any(df.columns == 'phi'):
+    if any(df.columns == 'omega'):
       fig = go.Figure(data=go.Splom(
                     dimensions=[dict(label='alpha',
                                     values=df.alpha),
                                 dict(label='beta',
                                     values=df.beta),
-                                dict(label='phi',
-                                    values=df['phi'])],
+                                dict(label='omega',
+                                    values=df['omega'])],
                     showupperhalf=False,
                     diagonal_visible=False, 
                     hovertemplate = 'participant ID: %{customdata}',
