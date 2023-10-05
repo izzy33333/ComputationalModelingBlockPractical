@@ -38,16 +38,6 @@ def plot_schedule(ID):
   # create 2 subplots
   fig = make_subplots(rows=2, cols=1)
 
-  # plot opt1rewarded as a scatterplot
-  fig.add_trace(
-      go.Scatter(
-          x = list(range(nTrials)),
-          y = opt1Rewarded,
-          mode = 'markers',
-          marker = dict(size = 5),
-          name = "trial outcomes"
-      ))
-
   # plot trueProbability as a line
   fig.add_trace(
       go.Scatter(
@@ -57,19 +47,32 @@ def plot_schedule(ID):
           line = dict(color='black', dash='dash'),
           name = "true probability"
       ))
-
+  
+  # get correct and incorrect choices
+  correct_choices = np.array([choice1[i] if (opt1Rewarded[i] and choice1[i]) or  (not opt1Rewarded[i] and not choice1[i]) else np.NAN for i in range(nTrials)])
+  incorrect_choices = np.array([choice1[i] if (opt1Rewarded[i] and not choice1[i]) or  (not opt1Rewarded[i] and choice1[i]) else np.NAN for i in range(nTrials)])
+  
   # plot choices as a scatterplot
   fig.add_trace(
       go.Scatter(
           x = list(range(nTrials)),
-          y = choice1,
+          y = correct_choices,
           mode = 'markers',
-          marker = dict(size = 5, symbol='cross', opacity=0.8),
-          name = "participant choice"
+          marker = dict(size = 5, opacity=0.8, color="green"),
+          name = "correct choice"
+      ))
+  
+  fig.add_trace(
+      go.Scatter(
+          x = list(range(nTrials)),
+          y = incorrect_choices,
+          mode = 'markers',
+          marker = dict(size = 5, opacity=0.8, color="red"),
+          name = "incorrect choice"
       ))
 
   # label the axes
-  fig.update_layout(xaxis_title="", yaxis_title="green rewarded?")
+  fig.update_layout(xaxis_title="", yaxis_title="option 1 rewarded?")
 
   # plot reward magnitudes as lines
   fig.add_trace(
