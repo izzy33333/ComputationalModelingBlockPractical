@@ -30,9 +30,9 @@ def plot_schedule(ID, *df):
         df (pandas.DataFrame): optional, a dataframe containing fitted parameters.
 
   '''
-  
+
   trueProbability, choice1, magOpt1, magOpt2, opt1Rewarded = load_blain(ID)
-  
+
   # compute number of trials
   nTrials = len(opt1Rewarded)
 
@@ -46,38 +46,38 @@ def plot_schedule(ID, *df):
     choiceProb1 = np.zeros(nTrials, dtype = float)
     utility1    = np.zeros(nTrials, dtype = float)
     utility2    = np.zeros(nTrials, dtype = float)
-    
-    if any(df.columns == 'alphaStable'):
-        if any(df.columns == 'omega'):
+
+    if any(df[0].columns == 'alphaStable'):
+        if any(df[0].columns == 'omega'):
             if ID < 37:
-                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df.alphaStable[ID],   df.beta[ID], df.omega[ID], utility_function = additive_utility)
-                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df.alphaVolatile[ID], df.beta[ID], df.omega[ID], utility_function = additive_utility)
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alphaStable[ID],   df[0].beta[ID], df[0].omega[ID], utility_function = additive_utility)
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alphaVolatile[ID], df[0].beta[ID], df[0].omega[ID], utility_function = additive_utility)
             else:
-                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df.alphaVolatile[ID], df.beta[ID], df.omega[ID], utility_function = additive_utility)
-                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df.alphaStable[ID],   df.beta[ID], df.omega[ID], utility_function = additive_utility)
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alphaVolatile[ID], df[0].beta[ID], df[0].omega[ID], utility_function = additive_utility)
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alphaStable[ID],   df[0].beta[ID], df[0].omega[ID], utility_function = additive_utility)
         else:
             if ID < 37:
-                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df.alphaStable[ID],   df.beta[ID])
-                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df.alphaVolatile[ID], df.beta[ID])
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alphaStable[ID],   df[0].beta[ID])
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alphaVolatile[ID], df[0].beta[ID])
             else:
-                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df.alphaVolatile[ID], df.beta[ID])
-                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df.alphaStable[ID],   df.beta[ID])
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alphaVolatile[ID], df[0].beta[ID])
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alphaStable[ID],   df[0].beta[ID])
     else:
-        if any(df.columns == 'omega'):
+        if any(df[0].columns == 'omega'):
             if ID < 37:
-                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df.alpha[ID], df.beta[ID], df.omega[ID], utility_function = additive_utility)
-                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df.alpha[ID], df.beta[ID], df.omega[ID], utility_function = additive_utility)
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alpha[ID], df[0].beta[ID], df[0].omega[ID], utility_function = additive_utility)
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alpha[ID], df[0].beta[ID], df[0].omega[ID], utility_function = additive_utility)
             else:
-                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df.alpha[ID], df.beta[ID], df.omega[ID], utility_function = additive_utility)
-                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df.alpha[ID], df.beta[ID], df.omega[ID], utility_function = additive_utility)
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alpha[ID], df[0].beta[ID], df[0].omega[ID], utility_function = additive_utility)
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alpha[ID], df[0].beta[ID], df[0].omega[ID], utility_function = additive_utility)
         else:
             if ID < 37:
-                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df.alpha[ID], df.beta[ID], df.omega[ID])
-                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df.alpha[ID], df.beta[ID], df.omega[ID])
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alpha[ID], df[0].beta[ID])
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alpha[ID], df[0].beta[ID])
             else:
-                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df.alpha[ID], df.beta[ID], df.omega[ID])
-                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df.alpha[ID], df.beta[ID], df.omega[ID])
-        
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alpha[ID], df[0].beta[ID])
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alpha[ID], df[0].beta[ID])
+
 
   # plot trueProbability as a line
   fig.add_trace(
@@ -88,7 +88,7 @@ def plot_schedule(ID, *df):
           line = dict(color='black', dash='dash'),
           name = "true probability"
       ))
-  
+
   # check if we should plot probOpt1, and if so plot it as a line
   if df:
     fig.add_trace(
@@ -99,7 +99,7 @@ def plot_schedule(ID, *df):
             line = dict(color='red'),
             name = "RL model probability"
         ))
-    
+
   # check if we should plot choiceProb1, and if so plot it as a scatterplot
   if df:
     fig.add_trace(
@@ -107,14 +107,14 @@ def plot_schedule(ID, *df):
             x = list(range(nTrials)),
             y = choiceProb1,
             mode = 'markers',
-            marker = dict(size = 5, symbol='x'),
+            marker = dict(size = 5, symbol='x', color='blue'),
             name = "choice probability"
         ))
-  
+
   # get correct and incorrect choices
   correct_choices = np.array([choice1[i] if (opt1Rewarded[i] and choice1[i]) or  (not opt1Rewarded[i] and not choice1[i]) else np.NAN for i in range(nTrials)])
   incorrect_choices = np.array([choice1[i] if (opt1Rewarded[i] and not choice1[i]) or  (not opt1Rewarded[i] and choice1[i]) else np.NAN for i in range(nTrials)])
-  
+
   # plot choices as a scatterplot
   fig.add_trace(
       go.Scatter(
@@ -124,7 +124,7 @@ def plot_schedule(ID, *df):
           marker = dict(size = 5, opacity=0.8, color="green"),
           name = "correct choice"
       ))
-  
+
   fig.add_trace(
       go.Scatter(
           x = list(range(nTrials)),
@@ -158,9 +158,9 @@ def plot_schedule(ID, *df):
           xaxis = 'x2',
           yaxis = 'y2',
       ))
-  
+
   if df:
-            
+
       # plot the utility of option 1 and option 2
       fig.add_trace(
           go.Scatter(
@@ -182,19 +182,23 @@ def plot_schedule(ID, *df):
               xaxis = 'x3',
               yaxis = 'y3',
           ))
-      
+
       # label the axes
       fig.update_layout(xaxis3_title="trial number", yaxis3_title="utility")
-      
+
       fig.update_xaxes(range=[0, nTrials], row=3, col=1)
-  
-  # label the axes
-  fig.update_layout(xaxis2_title="trial number", yaxis2_title="reward magnitude")
+
+  if df:
+    # label the axes
+    fig.update_layout(xaxis2_title="", yaxis2_title="magnitude")
+  else:
+    # label the axes
+    fig.update_layout(xaxis2_title="trial number", yaxis2_title="magnitude")
 
   # set x-axis range for all subplots
   # this sets the range for all x-axes
   fig.update_xaxes(range=[0, nTrials])
-  # this is needed to set the range for the second subplot 
+  # this is needed to set the range for the second subplot
   fig.update_xaxes(range=[0, nTrials], row=2, col=1)
 
   return fig
