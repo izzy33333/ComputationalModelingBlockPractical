@@ -343,8 +343,6 @@ def plot_interactive_RL_model(
         magOpt2(int array): The reward magnitude of option 1.
         trueProbability(float array): The probability with which option 1 is
           rewareded on each trial.
-        *additionalParameters(float, optional): other parameters to pass onto the
-          utility function.
   '''
 
   # make sliders for alpha and beta

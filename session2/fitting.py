@@ -19,7 +19,7 @@ def loglikelihood_RL_model(opt1Rewarded,
                            choice1,
                            alpha,
                            beta,
-                           *additonalParameters,
+                           *additionalParameters,
                            startingProb = 0.5,
                            utility_function = utility_fun,
                            choice_function = logistic.cdf):
@@ -61,8 +61,8 @@ def loglikelihood_RL_model(opt1Rewarded,
   LL = 0
 
   for t in range(nTrials-1):
-        utility1 = utility_function(magOpt1[t], probOpt1[t], *additonalParameters)
-        utility2 = utility_function(magOpt2[t], (1 - probOpt1[t]), *additonalParameters)
+        utility1 = utility_function(magOpt1[t], probOpt1[t], *additionalParameters)
+        utility2 = utility_function(magOpt2[t], (1 - probOpt1[t]), *additionalParameters)
         if choice1[t] == 1:
           LL += np.log(choice_function((utility1-utility2)*beta))
         else:

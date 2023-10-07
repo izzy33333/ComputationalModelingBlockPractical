@@ -21,12 +21,13 @@ from fitting import *
 from loading import *
 
 
-def plot_schedule(ID):
+def plot_schedule(ID, *df):
   '''
   Plots the experimental schedule using plotly.
 
     Parameters:
         ID (int): The participant ID.
+        df (pandas.DataFrame): optional, a dataframe containing fitted parameters.
 
   '''
   
@@ -35,8 +36,48 @@ def plot_schedule(ID):
   # compute number of trials
   nTrials = len(opt1Rewarded)
 
-  # create 2 subplots
-  fig = make_subplots(rows=2, cols=1)
+  # create subplots
+  if not df:
+    fig = make_subplots(rows=2, cols=1)
+  else:
+    fig = make_subplots(rows=3, cols=1)
+    nTrials = len(opt1Rewarded)
+    probOpt1    = np.zeros(nTrials, dtype = float)
+    choiceProb1 = np.zeros(nTrials, dtype = float)
+    utility1    = np.zeros(nTrials, dtype = float)
+    utility2    = np.zeros(nTrials, dtype = float)
+    
+    if any(df.columns == 'alphaStable'):
+        if any(df.columns == 'omega'):
+            if ID < 37:
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df.alphaStable[ID],   df.beta[ID], df.omega[ID], utility_function = additive_utility)
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df.alphaVolatile[ID], df.beta[ID], df.omega[ID], utility_function = additive_utility)
+            else:
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df.alphaVolatile[ID], df.beta[ID], df.omega[ID], utility_function = additive_utility)
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df.alphaStable[ID],   df.beta[ID], df.omega[ID], utility_function = additive_utility)
+        else:
+            if ID < 37:
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df.alphaStable[ID],   df.beta[ID])
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df.alphaVolatile[ID], df.beta[ID])
+            else:
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df.alphaVolatile[ID], df.beta[ID])
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df.alphaStable[ID],   df.beta[ID])
+    else:
+        if any(df.columns == 'omega'):
+            if ID < 37:
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df.alpha[ID], df.beta[ID], df.omega[ID], utility_function = additive_utility)
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df.alpha[ID], df.beta[ID], df.omega[ID], utility_function = additive_utility)
+            else:
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df.alpha[ID], df.beta[ID], df.omega[ID], utility_function = additive_utility)
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df.alpha[ID], df.beta[ID], df.omega[ID], utility_function = additive_utility)
+        else:
+            if ID < 37:
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df.alpha[ID], df.beta[ID], df.omega[ID])
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df.alpha[ID], df.beta[ID], df.omega[ID])
+            else:
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df.alpha[ID], df.beta[ID], df.omega[ID])
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df.alpha[ID], df.beta[ID], df.omega[ID])
+        
 
   # plot trueProbability as a line
   fig.add_trace(
@@ -47,6 +88,28 @@ def plot_schedule(ID):
           line = dict(color='black', dash='dash'),
           name = "true probability"
       ))
+  
+  # check if we should plot probOpt1, and if so plot it as a line
+  if df:
+    fig.add_trace(
+        go.Scatter(
+            x = list(range(nTrials)),
+            y = probOpt1,
+            mode = 'lines',
+            line = dict(color='red'),
+            name = "RL model probability"
+        ))
+    
+  # check if we should plot choiceProb1, and if so plot it as a scatterplot
+  if df:
+    fig.add_trace(
+        go.Scatter(
+            x = list(range(nTrials)),
+            y = choiceProb1,
+            mode = 'markers',
+            marker = dict(size = 5, symbol='x'),
+            name = "choice probability"
+        ))
   
   # get correct and incorrect choices
   correct_choices = np.array([choice1[i] if (opt1Rewarded[i] and choice1[i]) or  (not opt1Rewarded[i] and not choice1[i]) else np.NAN for i in range(nTrials)])
@@ -95,6 +158,35 @@ def plot_schedule(ID):
           xaxis = 'x2',
           yaxis = 'y2',
       ))
+  
+  if df:
+            
+      # plot the utility of option 1 and option 2
+      fig.add_trace(
+          go.Scatter(
+              x = list(range(nTrials)),
+              y = utility1,
+              mode = 'lines',
+              line = dict(color='orange'),
+              name = "utility option 1",
+              xaxis = 'x3',
+              yaxis = 'y3',
+          ))
+      fig.add_trace(
+          go.Scatter(
+              x = list(range(nTrials)),
+              y = utility2,
+              mode = 'lines',
+              line = dict(color='green'),
+              name = "utility option 2",
+              xaxis = 'x3',
+              yaxis = 'y3',
+          ))
+      
+      # label the axes
+      fig.update_layout(xaxis3_title="trial number", yaxis3_title="utility")
+      
+      fig.update_xaxes(range=[0, nTrials], row=3, col=1)
   
   # label the axes
   fig.update_layout(xaxis2_title="trial number", yaxis2_title="reward magnitude")

@@ -16,7 +16,7 @@ def multiplicative_utility(mag, prob):
   return mag*prob
 
 def additive_utility(mag, prob, omega):
-  return omega*prob + (1-omega)*(mag/80)
+  return (omega*(mag/100) + (1-omega)*prob)*100
 
 def loglikelihood_RL_model(opt1Rewarded,
                           magOpt1,
@@ -24,7 +24,7 @@ def loglikelihood_RL_model(opt1Rewarded,
                           choice1,
                           alpha,
                           beta,
-                          *additonalParameters,
+                          *additionalParameters,
                           startingProb = 0.5,
                           utility_function = multiplicative_utility,
                           choice_function = logistic.cdf):
@@ -62,8 +62,8 @@ def loglikelihood_RL_model(opt1Rewarded,
   LL = 0
 
   for t in range(nTrials-1):
-        utility1 = utility_function(magOpt1[t], probOpt1, *additonalParameters)
-        utility2 = utility_function(magOpt2[t], (1 - probOpt1), *additonalParameters)
+        utility1 = utility_function(magOpt1[t], probOpt1, *additionalParameters)
+        utility2 = utility_function(magOpt2[t], (1 - probOpt1), *additionalParameters)
         if choice1[t] == 1:
           LL += np.log(choice_function((utility1-utility2)*beta))
         else:
@@ -83,35 +83,35 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
     fitData1Alpha = pd.DataFrame(np.zeros((numSubjects, 5)),
                                 columns = ["ID",
                                            "alpha",
-                                            "beta",
-                                            "LL",
-                                            "BIC"])
+                                           "beta",
+                                           "LL",
+                                           "BIC"])
 
     fitData2Alpha = pd.DataFrame(np.zeros((numSubjects, 6)),
                                 columns = ["ID",
                                            "alphaStable",
-                                            "alphaVolatile",
-                                            "beta",
-                                            "LL",
-                                            "BIC"])
+                                           "alphaVolatile",
+                                           "beta",
+                                           "LL",
+                                           "BIC"])
   elif utility_function == additive_utility:
     
     fitData1Alpha = pd.DataFrame(np.zeros((numSubjects, 6)),
                                 columns = ["ID",
                                            "alpha",
-                                            "beta",
-                                            "omega",
-                                            "LL",
-                                            "BIC"])
+                                           "beta",
+                                           "omega",
+                                           "LL",
+                                           "BIC"])
 
     fitData2Alpha = pd.DataFrame(np.zeros((numSubjects, 7)),
                                 columns = ["ID",
                                            "alphaStable",
-                                            "alphaVolatile",
-                                            "beta",
-                                            "omega",
-                                            "LL",
-                                            "BIC"])
+                                           "alphaVolatile",
+                                           "beta",
+                                           "omega",
+                                           "LL",
+                                           "BIC"])
 
 
   for s in range(numSubjects):
@@ -125,11 +125,11 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
     if simulate:
       # simulate an artificial participant
       if s < 37:
-        choice1[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_S[s], beta[s], rng = rng)
-        choice1[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_V[s], beta[s], rng = rng)
+        choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_S[s], beta[s], rng = rng)
+        choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_V[s], beta[s], rng = rng)
       else:
-        choice1[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_V[s], beta[s], rng = rng)
-        choice1[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[s], beta[s], rng = rng)
+        choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_V[s], beta[s], rng = rng)
+        choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[s], beta[s], rng = rng)
 
     if utility_function == multiplicative_utility:
       # create functions to be minimized
@@ -208,7 +208,7 @@ def simulate_RL_model(opt1Rewarded,
                       magOpt2,
                       alpha,
                       beta,
-                      *additonalParameters,
+                      *additionalParameters,
                       startingProb = 0.5,
                       utility_function = multiplicative_utility,
                       rng = np.random.default_rng(12345)):
@@ -259,6 +259,8 @@ def simulate_RL_model(opt1Rewarded,
   probOpt1    = np.zeros(nTrials, dtype = float)
   delta       = np.zeros(nTrials, dtype = float)
   choiceProb1 = np.zeros(nTrials, dtype = float)
+  utility1    = np.zeros(nTrials, dtype = float)
+  utility2    = np.zeros(nTrials, dtype = float)
 
   # set the first trial's prediction to be equal to the starting probability
   probOpt1[0] = startingProb
@@ -267,11 +269,11 @@ def simulate_RL_model(opt1Rewarded,
         # calculate the utility of the two options. *additionalParameters would only be needed
         # if the utility function has >2 inputs, which is not the case for multiplicative
         # utility.
-        utility1 = utility_function(magOpt1[t], probOpt1[t], *additonalParameters)
-        utility2 = utility_function(magOpt2[t], (1 - probOpt1[t]), *additonalParameters)
+        utility1[t] = utility_function(magOpt1[t], probOpt1[t], *additionalParameters)
+        utility2[t] = utility_function(magOpt2[t], (1 - probOpt1[t]), *additionalParameters)
 
         # get the probability of making choice 1
-        choiceProb1[t] = logistic.cdf((utility1-utility2)* beta)
+        choiceProb1[t] = logistic.cdf((utility1[t]-utility2[t])* beta)
 
         # calculate the prediction error
         delta[t] = opt1Rewarded[t] - probOpt1[t]
@@ -279,6 +281,11 @@ def simulate_RL_model(opt1Rewarded,
         # update the probability of option 1 being rewarded
         probOpt1[t+1] = probOpt1[t] + alpha*delta[t]
   
+  t = nTrials-1
+  utility1[t] = utility_function(magOpt1[t], probOpt1[t], *additionalParameters)
+  utility2[t] = utility_function(magOpt2[t], (1 - probOpt1[t]), *additionalParameters)
+  choiceProb1[t] = logistic.cdf((utility1[t]-utility2[t])* beta)
+        
   choice1 = (choiceProb1 > rng.random(len(opt1Rewarded))).astype(int)
 
-  return choice1
+  return choice1, probOpt1, choiceProb1, utility1, utility2
