@@ -125,19 +125,19 @@ def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None
       if utility_function == multiplicative_utility:  
         # simulate an artificial participant
         if s < 37:
-          choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_S[i], beta[i], utility_function = utility_function, rng = rng)
-          choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_V[i], beta[i], utility_function = utility_function, rng = rng)
+          choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_S[s], beta[s], utility_function = utility_function, rng = rng)
+          choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_V[s], beta[s], utility_function = utility_function, rng = rng)
         else:
-          choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_V[i], beta[i], utility_function = utility_function, rng = rng)
-          choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[i], beta[i], utility_function = utility_function, rng = rng)
+          choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_V[s], beta[s], utility_function = utility_function, rng = rng)
+          choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[s], beta[s], utility_function = utility_function, rng = rng)
       elif utility_function == additive_utility:
         # simulate an artificial participant
         if s < 37:
-          choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_S[i], beta[i], omega[i], utility_function = utility_function, rng = rng)
-          choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_V[i], beta[i], omega[i], utility_function = utility_function, rng = rng)
+          choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_S[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
+          choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_V[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
         else:
-          choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_V[i], beta[s], omega[i], utility_function = utility_function, rng = rng)
-          choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[i], beta[s], omega[i], utility_function = utility_function, rng = rng)
+          choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_V[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
+          choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
           
         
     if utility_function == multiplicative_utility:
@@ -156,11 +156,11 @@ def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None
       if simulate:
         # simulate an artificial participant
         if s < 37:
-          choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_S[i], beta[i], omega[i], utility_function = utility_function, rng = rng)
-          choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_V[i], beta[i], omega[i], utility_function = utility_function, rng = rng)
+          choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_S[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
+          choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_V[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
         else:
-          choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_V[i], beta[i], omega[i], utility_function = utility_function, rng = rng)
-          choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[i], beta[i], omega[i], utility_function = utility_function, rng = rng)
+          choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_V[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
+          choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
         
       # create functions to be minimized
       def min_fun(x):
