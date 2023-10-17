@@ -74,9 +74,9 @@ def loglikelihood_RL_model(opt1Rewarded,
   return LL
 
 
-def fit_participant_data(utility_function, simulate = False, alpha_S = None, alpha_V = None, beta = None, omega = None, rng = np.random.default_rng(12345), method = 'BFGS'):
+def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None, alpha_V = None, beta = None, omega = None, rng = np.random.default_rng(12345), method = 'BFGS'):
   
-  numSubjects = 75
+  numSubjects = len(IDs)
   
   if utility_function == multiplicative_utility:
   
@@ -114,13 +114,13 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
                                            "BIC"])
 
 
-  for s in range(numSubjects):
+  for s in IDs:
     if s % 5 == 0:
       display("fitting subject " + str(s) + "/" + str(numSubjects))
     
 
     # load in data
-    trueProbability, choice1, magOpt1, magOpt2, opt1Rewarded = load_blain(s)
+    _, choice1, magOpt1, magOpt2, opt1Rewarded = load_blain(s)
     
     if simulate:
       if utility_function == multiplicative_utility:  
@@ -326,6 +326,7 @@ def parameter_recovery(
         dataTmp.omega = rng.permutation(dataTmp.omega)
         data1Alpha, data2Alpha = fit_participant_data(
           additive_utility,
+          dataTmp.ID,
           simulate=True,
           alpha_S = dataTmp.alphaStable,
           alpha_V = dataTmp.alphaVolatile,
@@ -337,6 +338,7 @@ def parameter_recovery(
       else:
         data1Alpha, data2Alpha = fit_participant_data(
           multiplicative_utility,
+          dataTmp.ID,
           simulate=True,
           alpha_S = dataTmp.alphaStable,
           alpha_V = dataTmp.alphaVolatile,
@@ -350,6 +352,7 @@ def parameter_recovery(
         dataTmp.omega = rng.permutation(dataTmp.omega)
         data1Alpha, data2Alpha = fit_participant_data(
           additive_utility,
+          dataTmp.ID,
           simulate=True,
           alpha_S = dataTmp.alpha,
           alpha_V = dataTmp.alpha,
@@ -361,6 +364,7 @@ def parameter_recovery(
       else:
         data1Alpha, data2Alpha = fit_participant_data(
           multiplicative_utility,
+          dataTmp.ID,
           simulate=True,
           alpha_S = dataTmp.alpha,
           alpha_V = dataTmp.alpha,
@@ -381,6 +385,7 @@ def parameter_recovery(
       dataTmp['recovered2Omega'] = data2Alpha.omega
     dataTmp['recovered2LL'] = data2Alpha.LL
     dataTmp['recovered2BIC'] = data2Alpha.BIC
-    dataOut = pd.concat([dataOut, dataTmp])
     dataTmp.ID = dataTmp.ID + i*75
+    dataOut = pd.concat([dataOut, dataTmp])
+    
   return dataOut
