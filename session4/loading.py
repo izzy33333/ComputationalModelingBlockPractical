@@ -46,4 +46,8 @@ def load_model_fits():
   data2AlphaMul = pd.read_csv("data2AlphaMul.csv")
   data1AlphaAdd = pd.read_csv("data1AlphaAdd.csv")
   data2AlphaAdd = pd.read_csv("data2AlphaAdd.csv")
+  data1AlphaMul.ID = data1AlphaMul.ID.astype(int)
+  data2AlphaMul.ID = data2AlphaMul.ID.astype(int)
+  data1AlphaAdd.ID = data1AlphaAdd.ID.astype(int)
+  data2AlphaAdd.ID = data2AlphaAdd.ID.astype(int)
   return data1AlphaMul, data2AlphaMul, data1AlphaAdd, data2AlphaAdd

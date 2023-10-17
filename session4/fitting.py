@@ -114,9 +114,8 @@ def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None
                                            "BIC"])
 
 
-  for s in IDs:
-    if s % 5 == 0:
-      display("fitting subject " + str(s) + "/" + str(numSubjects))
+  for i, s in enumerate(IDs):
+    display("fitting subject " + str(s))
     
 
     # load in data
@@ -151,7 +150,7 @@ def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None
       # fit the data of this participant
       fitted_parameters_1_alpha = minimize(min_fun, [0, -1.5], method = method)
       
-      fitData1Alpha.BIC[s]   = 2*np.log(160) + 2*fitted_parameters_1_alpha.fun
+      fitData1Alpha.BIC[i]   = 2*np.log(160) + 2*fitted_parameters_1_alpha.fun
       
     elif utility_function == additive_utility:
       if simulate:
@@ -172,14 +171,14 @@ def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None
       # fit the data of this participant
       fitted_parameters_1_alpha = minimize(min_fun, [0, -1.5, 0], method = method)
       
-      fitData1Alpha.omega[s] = logistic.cdf(fitted_parameters_1_alpha.x[2])
-      fitData1Alpha.BIC[s] = 3*np.log(160) + 2*fitted_parameters_1_alpha.fun
+      fitData1Alpha.omega[i] = logistic.cdf(fitted_parameters_1_alpha.x[2])
+      fitData1Alpha.BIC[i] = 3*np.log(160) + 2*fitted_parameters_1_alpha.fun
 
     # save the data
-    fitData1Alpha.alpha[s] = logistic.cdf(fitted_parameters_1_alpha.x[0])
-    fitData1Alpha.beta[s]  = np.exp(fitted_parameters_1_alpha.x[1])
-    fitData1Alpha.LL[s]    = -fitted_parameters_1_alpha.fun
-    fitData1Alpha.ID[s]    = s
+    fitData1Alpha.alpha[i] = logistic.cdf(fitted_parameters_1_alpha.x[0])
+    fitData1Alpha.beta[i]  = np.exp(fitted_parameters_1_alpha.x[1])
+    fitData1Alpha.LL[i]    = -fitted_parameters_1_alpha.fun
+    fitData1Alpha.ID[i]    = s
     
     if utility_function == multiplicative_utility:  
       # create functions to be minimized
@@ -191,7 +190,7 @@ def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None
       # fit the data of this participant
       fitted_parameters_2_alpha = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1]], method = method)
       
-      fitData2Alpha.BIC[s]  = 3*np.log(160) + 2*fitted_parameters_2_alpha.fun
+      fitData2Alpha.BIC[i]  = 3*np.log(160) + 2*fitted_parameters_2_alpha.fun
       
     elif utility_function == additive_utility:
       # create functions to be minimized
@@ -203,21 +202,21 @@ def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None
       # fit the data of this participant
       fitted_parameters_2_alpha = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1], fitted_parameters_1_alpha.x[2]], method = method)
 
-      fitData2Alpha.omega[s] = logistic.cdf(fitted_parameters_2_alpha.x[3])
-      fitData2Alpha.BIC[s] = 4*np.log(160) + 2*fitted_parameters_2_alpha.fun
+      fitData2Alpha.omega[i] = logistic.cdf(fitted_parameters_2_alpha.x[3])
+      fitData2Alpha.BIC[i] = 4*np.log(160) + 2*fitted_parameters_2_alpha.fun
       
     # save the data
     if s < 37:
-      fitData2Alpha.alphaStable[s]   = logistic.cdf(fitted_parameters_2_alpha.x[0])
-      fitData2Alpha.alphaVolatile[s] = logistic.cdf(fitted_parameters_2_alpha.x[1])
+      fitData2Alpha.alphaStable[i]   = logistic.cdf(fitted_parameters_2_alpha.x[0])
+      fitData2Alpha.alphaVolatile[i] = logistic.cdf(fitted_parameters_2_alpha.x[1])
 
     else:
-      fitData2Alpha.alphaStable[s]   = logistic.cdf(fitted_parameters_2_alpha.x[1])
-      fitData2Alpha.alphaVolatile[s] = logistic.cdf(fitted_parameters_2_alpha.x[0])
+      fitData2Alpha.alphaStable[i]   = logistic.cdf(fitted_parameters_2_alpha.x[1])
+      fitData2Alpha.alphaVolatile[i] = logistic.cdf(fitted_parameters_2_alpha.x[0])
 
-    fitData2Alpha.beta[s] = np.exp(fitted_parameters_2_alpha.x[2])
-    fitData2Alpha.LL[s]   = -fitted_parameters_2_alpha.fun
-    fitData2Alpha.ID[s]   = s
+    fitData2Alpha.beta[i] = np.exp(fitted_parameters_2_alpha.x[2])
+    fitData2Alpha.LL[i]   = -fitted_parameters_2_alpha.fun
+    fitData2Alpha.ID[i]   = s
     
   return fitData1Alpha, fitData2Alpha
 
@@ -317,7 +316,7 @@ def parameter_recovery(
   dataOut = pd.DataFrame()
   for i in range(nReps):
     dataTmp = data.copy()
-    dataTmp.drop(columns=['LL', 'BIC'])
+    dataTmp = dataTmp.drop(columns=['LL', 'BIC'])
     dataTmp.beta = rng.permutation(dataTmp.beta)
     if any(dataTmp.columns == 'alphaStable'):
       dataTmp.alphaStable = rng.permutation(dataTmp.alphaStable)
