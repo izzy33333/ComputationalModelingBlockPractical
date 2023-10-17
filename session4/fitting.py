@@ -315,7 +315,7 @@ def parameter_recovery(
   rng = np.random.default_rng(12345),
 ):
   dataOut = pd.DataFrame()
-  for _ in range(nReps):
+  for i in range(nReps):
     dataTmp = data.copy()
     dataTmp.drop(columns=['LL', 'BIC'])
     dataTmp.beta = rng.permutation(dataTmp.beta)
@@ -368,19 +368,19 @@ def parameter_recovery(
           rng = rng,
           method = 'BFGS'
           )
-    dataTmp.recovered1Alpha = data1Alpha.alpha
-    dataTmp.recovered1Beta = data1Alpha.beta
+    dataTmp['recovered1Alpha'] = data1Alpha.alpha
+    dataTmp['recovered1Beta'] = data1Alpha.beta
     if any(dataTmp.columns == 'omega'):
-      dataTmp.recovered1Omega = data1Alpha.omega
-    dataTmp.recovered1LL = data1Alpha.LL
-    dataTmp.recovered1BIC = data1Alpha.BIC
-    dataTmp.recovered2AlphaS = data2Alpha.alphaStable
-    dataTmp.recovered2AlphaV = data2Alpha.alphaVolatile
-    dataTmp.recovered2Beta = data2Alpha.beta
+      dataTmp['recovered1Omega'] = data1Alpha.omega
+    dataTmp['recovered1LL'] = data1Alpha.LL
+    dataTmp['recovered1BIC'] = data1Alpha.BIC
+    dataTmp['recovered2AlphaS'] = data2Alpha.alphaStable
+    dataTmp['recovered2AlphaV'] = data2Alpha.alphaVolatile
+    dataTmp['recovered2Beta'] = data2Alpha.beta
     if any(dataTmp.columns == 'omega'):
-      dataTmp.recovered2Omega = data2Alpha.omega
-    dataTmp.recovered2LL = data2Alpha.LL
-    dataTmp.recovered2BIC = data2Alpha.BIC
+      dataTmp['recovered2Omega'] = data2Alpha.omega
+    dataTmp['recovered2LL'] = data2Alpha.LL
+    dataTmp['recovered2BIC'] = data2Alpha.BIC
     dataOut = pd.concat([dataOut, dataTmp])
-  
+    dataTmp.ID = dataTmp.ID + i*75
   return dataOut
