@@ -317,19 +317,20 @@ def parameter_recovery(
   dataOut = pd.DataFrame()
   for _ in range(nReps):
     dataTmp = data.copy()
-    rng.shuffle(data.beta)
+    dataTmp.drop(columns=['LL', 'BIC'])
+    dataTmp.beta = rng.permutation(dataTmp.beta)
     if any(dataTmp.columns == 'alphaStable'):
-      rng.shuffle(data.alphaStable)
-      rng.shuffle(data.alphaVolatile)
+      dataTmp.alphaStable = rng.permutation(dataTmp.alphaStable)
+      dataTmp.alphaVolatile = rng.permutation(dataTmp.alphaVolatile)
       if any(dataTmp.columns == 'omega'):
-        rng.shuffle(data.omega)
+        dataTmp.omega = rng.permutation(dataTmp.omega)
         data1Alpha, data2Alpha = fit_participant_data(
           additive_utility,
           simulate=True,
-          alpha_S = data.alphaStable,
-          alpha_V = data.alphaVolatile,
-          beta = data.beta,
-          omega = data.omega,
+          alpha_S = dataTmp.alphaStable,
+          alpha_V = dataTmp.alphaVolatile,
+          beta = dataTmp.beta,
+          omega = dataTmp.omega,
           rng = rng,
           method = 'Nelder-Mead'
           )
@@ -337,23 +338,23 @@ def parameter_recovery(
         data1Alpha, data2Alpha = fit_participant_data(
           multiplicative_utility,
           simulate=True,
-          alpha_S = data.alphaStable,
-          alpha_V = data.alphaVolatile,
-          beta = data.beta,
+          alpha_S = dataTmp.alphaStable,
+          alpha_V = dataTmp.alphaVolatile,
+          beta = dataTmp.beta,
           rng = rng,
           method = 'BFGS'
           )
     else:
-      rng.shuffle(data.alpha)
+      dataTmp.alpha = rng.permutation(dataTmp.alpha)
       if any(dataTmp.columns == 'omega'):
-        rng.shuffle(data.omega)
+        dataTmp.omega = rng.permutation(dataTmp.omega)
         data1Alpha, data2Alpha = fit_participant_data(
           additive_utility,
           simulate=True,
-          alpha_S = data.alpha,
-          alpha_V = data.alpha,
-          beta = data.beta,
-          omega = data.omega,
+          alpha_S = dataTmp.alpha,
+          alpha_V = dataTmp.alpha,
+          beta = dataTmp.beta,
+          omega = dataTmp.omega,
           rng = rng,
           method = 'Nelder-Mead'
           )
@@ -361,9 +362,9 @@ def parameter_recovery(
         data1Alpha, data2Alpha = fit_participant_data(
           multiplicative_utility,
           simulate=True,
-          alpha_S = data.alpha,
-          alpha_V = data.alpha,
-          beta = data.beta,
+          alpha_S = dataTmp.alpha,
+          alpha_V = dataTmp.alpha,
+          beta = dataTmp.beta,
           rng = rng,
           method = 'BFGS'
           )
