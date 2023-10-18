@@ -97,7 +97,7 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
   elif utility_function == additive_utility:
     
     fitData1Alpha = pd.DataFrame(np.zeros((numSubjects, 6)),
-                                columns = ["ID",
+                                columns = ["ID",f
                                            "alpha",
                                            "beta",
                                            "omega",
@@ -134,8 +134,8 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
     if utility_function == multiplicative_utility:
       # create functions to be minimized
       def min_fun(x):
-        LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), np.exp(x[1]), utility_function = utility_function)
-        LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[0]), np.exp(x[1]), utility_function = utility_function)
+        LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[1]), utility_function = utility_function)
+        LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[0]), logistic.cdf(x[1]), utility_function = utility_function)
         return - (LL1 + LL2)
 
       # fit the data of this participant
@@ -146,8 +146,8 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
     elif utility_function == additive_utility:
       # create functions to be minimized
       def min_fun(x):
-        LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), np.exp(x[1]), logistic.cdf(x[2]), utility_function = utility_function)
-        LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[0]), np.exp(x[1]), logistic.cdf(x[2]), utility_function = utility_function)
+        LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[1]), logistic.cdf(x[2]), utility_function = utility_function)
+        LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[0]), logistic.cdf(x[1]), logistic.cdf(x[2]), utility_function = utility_function)
         return - (LL1 + LL2)
 
       # fit the data of this participant
@@ -158,15 +158,15 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
 
     # save the data
     fitData1Alpha.alpha[s] = logistic.cdf(fitted_parameters_1_alpha.x[0])
-    fitData1Alpha.beta[s]  = np.exp(fitted_parameters_1_alpha.x[1])
+    fitData1Alpha.beta[s]  = logistic.cdf(fitted_parameters_1_alpha.x[1])
     fitData1Alpha.LL[s]    = -fitted_parameters_1_alpha.fun
     fitData1Alpha.ID[s]    = s
     
     if utility_function == multiplicative_utility:  
       # create functions to be minimized
       def min_fun(x):
-        LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), np.exp(x[2]), utility_function = utility_function)
-        LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[1]), np.exp(x[2]), utility_function = utility_function)
+        LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[2]), utility_function = utility_function)
+        LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[1]), logistic.cdf(x[2]), utility_function = utility_function)
         return - (LL1 + LL2)
 
       # fit the data of this participant
@@ -177,8 +177,8 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
     elif utility_function == additive_utility:
       # create functions to be minimized
       def min_fun(x):
-        LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), np.exp(x[2]), logistic.cdf(x[3]), utility_function = utility_function)
-        LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[1]), np.exp(x[2]), logistic.cdf(x[3]), utility_function = utility_function)
+        LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[2]), logistic.cdf(x[3]), utility_function = utility_function)
+        LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[1]), logistic.cdf(x[2]), logistic.cdf(x[3]), utility_function = utility_function)
         return - (LL1 + LL2)
 
       # fit the data of this participant
@@ -196,7 +196,7 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
       fitData2Alpha.alphaStable[s]   = logistic.cdf(fitted_parameters_2_alpha.x[1])
       fitData2Alpha.alphaVolatile[s] = logistic.cdf(fitted_parameters_2_alpha.x[0])
 
-    fitData2Alpha.beta[s] = np.exp(fitted_parameters_2_alpha.x[2])
+    fitData2Alpha.beta[s] = logistic.cdf(fitted_parameters_2_alpha.x[2])
     fitData2Alpha.LL[s]   = -fitted_parameters_2_alpha.fun
     fitData2Alpha.ID[s]   = s
     
