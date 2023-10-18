@@ -296,3 +296,154 @@ def plot_parameter_corrs(df):
                     ))
     
   fig.show()
+
+def plot_recovered_parameters(recoveryData):
+  '''
+  Plots the simulated against the recoverd parameters
+
+    Parameters:
+        recoveryData(DataFrame): DataFrame with columns simulatedAlpha,
+          simulatedBeta, recoverdAlpha, recoverdBeta
+  '''
+
+  if any(recoveryData.columns == 'alphaStable'):
+      if any(recoveryData.columns == 'omega'):
+          fig = make_subplots(rows=1, cols=4,
+                      subplot_titles=("alpha stable","alpha volatile","omega","beta"))
+          # Add line traces
+          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=1)
+          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
+          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=3)
+          fig.add_trace(go.Scatter(x=[0, max(recoveryData.beta)+0.05], y=[0, max(recoveryData.beta)+0.05], mode='lines', line=dict(color='black', width=1)), row=1, col=4)
+
+          # Add scatter traces
+          fig.add_trace(go.Scatter(
+                            x=recoveryData["alphaStable"],
+                            y=recoveryData["recovered2AlphaS"],
+                            mode='markers',
+                            marker=dict(color="blue")),
+                    row=1, col=1)
+          
+          fig.add_trace(go.Scatter(
+                            x=recoveryData["alphaVolatile"],
+                            y=recoveryData["recovered2AlphaV"],
+                            mode='markers',
+                            marker=dict(color="blue")),
+                    row=1, col=2)
+          
+          fig.add_trace(go.Scatter(
+                            x=recoveryData["omega"],
+                            y=recoveryData["recovered2Omega"],
+                            mode='markers',
+                            marker=dict(color="blue")),
+                    row=1, col=3)
+
+          fig.add_trace(go.Scatter(
+                            x=recoveryData["beta"],
+                            y=recoveryData["recovered2Beta"],
+                            mode='markers',
+                            marker=dict(color='blue')),
+                    row=1, col=4)
+
+          fig.update_layout(xaxis1_title="simulated", yaxis1_title="recovered", showlegend=False)
+          fig.update_layout(xaxis2_title="simulated", yaxis2_title="recovered", showlegend=False)
+          fig.update_layout(xaxis3_title="simulated", yaxis3_title="recovered", showlegend=False)
+          fig.update_layout(xaxis4_title="simulated", yaxis4_title="recovered", showlegend=False)
+      else:
+          fig = make_subplots(rows=1, cols=3,
+                      subplot_titles=("alpha stable","alpha volatile","beta"))
+          
+          # Add line traces
+          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=1)
+          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
+          fig.add_trace(go.Scatter(x=[0, max(recoveryData.beta)+0.05], y=[0, max(recoveryData.beta)+0.05], mode='lines', line=dict(color='black', width=1)), row=1, col=3)
+
+          # Add scatter traces
+          fig.add_trace(go.Scatter(
+                            x=recoveryData["alphaStable"],
+                            y=recoveryData["recovered2AlphaS"],
+                            mode='markers',
+                            marker=dict(color="blue")),
+                    row=1, col=1)
+          
+          fig.add_trace(go.Scatter(
+                            x=recoveryData["alphaVolatile"],
+                            y=recoveryData["recovered2AlphaV"],
+                            mode='markers',
+                            marker=dict(color="blue")),
+                    row=1, col=2)
+
+          fig.add_trace(go.Scatter(
+                            x=recoveryData["beta"],
+                            y=recoveryData["recovered2Beta"],
+                            mode='markers',
+                            marker=dict(color='blue')),
+                    row=1, col=3)
+
+          fig.update_layout(xaxis1_title="simulated", yaxis1_title="recovered", showlegend=False)
+          fig.update_layout(xaxis2_title="simulated", yaxis2_title="recovered", showlegend=False)
+          fig.update_layout(xaxis3_title="simulated", yaxis3_title="recovered", showlegend=False)
+
+  else:
+      if any(recoveryData.columns == 'omega'):
+          fig = make_subplots(rows=1, cols=3,
+                      subplot_titles=("alpha","omega","beta"))
+          
+          # Add line traces
+          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=1)
+          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
+          fig.add_trace(go.Scatter(x=[0, max(recoveryData.beta)+0.05], y=[0, max(recoveryData.beta)+0.05], mode='lines', line=dict(color='black', width=1)), row=1, col=3)
+
+          # Add scatter traces
+          fig.add_trace(go.Scatter(
+                            x=recoveryData["alpha"],
+                            y=recoveryData["recovered1Alpha"],
+                            mode='markers',
+                            marker=dict(color="blue")),
+                    row=1, col=1)
+          
+          fig.add_trace(go.Scatter(
+                            x=recoveryData["omega"],
+                            y=recoveryData["recovered1Omega"],
+                            mode='markers',
+                            marker=dict(color="blue")),
+                    row=1, col=2)
+
+          fig.add_trace(go.Scatter(
+                            x=recoveryData["beta"],
+                            y=recoveryData["recovered1Beta"],
+                            mode='markers',
+                            marker=dict(color='blue')),
+                    row=1, col=3)
+
+          fig.update_layout(xaxis1_title="simulated", yaxis1_title="recovered", showlegend=False)
+          fig.update_layout(xaxis2_title="simulated", yaxis2_title="recovered", showlegend=False)
+          fig.update_layout(xaxis3_title="simulated", yaxis3_title="recovered", showlegend=False)
+      else:
+          fig = make_subplots(rows=1, cols=2,
+                      subplot_titles=("alpha","beta"))
+          
+          # Add line traces
+          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=1)
+          fig.add_trace(go.Scatter(x=[0, max(recoveryData.beta)+0.05], y=[0, max(recoveryData.beta)+0.05], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
+
+          # Add scatter traces
+          fig.add_trace(go.Scatter(
+                            x=recoveryData["alpha"],
+                            y=recoveryData["recovered1Alpha"],
+                            mode='markers',
+                            marker=dict(color="blue")),
+                    row=1, col=1)
+
+          fig.add_trace(go.Scatter(
+                            x=recoveryData["beta"],
+                            y=recoveryData["recovered1Beta"],
+                            mode='markers',
+                            marker=dict(color='blue')),
+                    row=1, col=2)
+
+          fig.update_layout(xaxis1_title="simulated", yaxis1_title="recovered", showlegend=False)
+          fig.update_layout(xaxis2_title="simulated", yaxis2_title="recovered", showlegend=False)
+
+  # Show the figure
+  fig.show()
