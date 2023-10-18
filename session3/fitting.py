@@ -97,7 +97,7 @@ def fit_participant_data(utility_function, simulate = False, alpha_S = None, alp
   elif utility_function == additive_utility:
     
     fitData1Alpha = pd.DataFrame(np.zeros((numSubjects, 6)),
-                                columns = ["ID",f
+                                columns = ["ID",
                                            "alpha",
                                            "beta",
                                            "omega",
