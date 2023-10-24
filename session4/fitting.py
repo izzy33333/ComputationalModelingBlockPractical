@@ -307,11 +307,12 @@ def simulate_RL_model(opt1Rewarded,
 
 def parameter_recovery(
   data,
-  nReps = 1,
+  nReps = 100,
   rng = np.random.default_rng(12345),
 ):
   dataOut = pd.DataFrame()
   for i in range(nReps):
+    display("fitting iteration " + str(i) + " of " + str(nReps))
     dataTmp = data.copy()
     dataTmp = dataTmp.drop(columns=['LL', 'BIC'])
     dataTmp.beta = rng.permutation(dataTmp.beta)
