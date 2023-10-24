@@ -440,7 +440,7 @@ def plot_recovered_parameters(recoveryData):
                             x=recoveryData["omega"],
                             y=recoveryData["recovered1AddOmega"],
                             mode='markers',
-                            marker=dict(color="blue")
+                            marker=dict(color="blue"),
                             hovertemplate = 'Simulated beta: %{customdata[0]}<br>Recovered beta: %{customdata[1]}<br>Simulated alpha: %{customdata[2]}<br>Recovered alpha: %{customdata[3]}<extra></extra>',
                             customdata = np.stack((round(recoveryData["beta"],3), round(recoveryData["recovered1AddBeta"],3), round(recoveryData["alpha"],3), round(recoveryData["recovered1AddAlpha"],3)), axis=-1),
                             ),
