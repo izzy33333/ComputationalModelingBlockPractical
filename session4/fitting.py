@@ -177,7 +177,7 @@ def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None
       return - (LL1 + LL2)
 
     # fit the data of this participant
-    fitted_parameters_2_alpha_mul = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1]], method = 'Nelder-Mead')
+    fitted_parameters_2_alpha_mul = minimize(min_fun, [fitted_parameters_1_alpha_mul.x[0], fitted_parameters_1_alpha_mul.x[0], fitted_parameters_1_alpha_mul.x[1]], method = 'Nelder-Mead')
     
     fitData2AlphaMul.BIC[i]  = 3*np.log(160) + 2*fitted_parameters_2_alpha_mul.fun
     if s < 37:
@@ -199,7 +199,7 @@ def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None
       return - (LL1 + LL2)
 
     # fit the data of this participant
-    fitted_parameters_2_alpha_add = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1], fitted_parameters_1_alpha.x[2]], method = 'BFGS')
+    fitted_parameters_2_alpha_add = minimize(min_fun, [fitted_parameters_1_alpha_add.x[0], fitted_parameters_1_alpha_add.x[0], fitted_parameters_1_alpha_add.x[1], fitted_parameters_1_alpha_add.x[2]], method = 'BFGS')
 
     fitData2AlphaAdd.omega[i] = logistic.cdf(fitted_parameters_2_alpha_add.x[3])
     fitData2AlphaAdd.BIC[i] = 4*np.log(160) + 2*fitted_parameters_2_alpha_add.fun
