@@ -325,7 +325,25 @@ def plot_recovered_parameters(recoveryData):
           model.fit(recoveryData[["alphaStable"]].values.reshape(-1,1), recoveryData[["recovered2AddAlphaS"]]) 
           x_range = np.linspace(0, 1, 100)
           y_range = model.predict(x_range.reshape(-1, 1))
-          fig.add_trace(go.Scatter(x=x_range, y=y_range, mode='lines', line=dict(color='red', width=2)), row=1, col=1)
+          fig.add_trace(go.Scatter(x=x_range, y=y_range[:,0], mode='lines', line=dict(color='red', width=2)), row=1, col=1)
+          
+          model = LinearRegression()
+          model.fit(recoveryData[["alphaVolatile"]].values.reshape(-1,1), recoveryData[["recovered2AddAlphaV"]])
+          x_range = np.linspace(0, 1, 100)
+          y_range = model.predict(x_range.reshape(-1, 1))
+          fig.add_trace(go.Scatter(x=x_range, y=y_range[:,0], mode='lines', line=dict(color='red', width=2)), row=1, col=2)
+          
+          model = LinearRegression()
+          model.fit(recoveryData[["omega"]].values.reshape(-1,1), recoveryData[["recovered2AddOmega"]])
+          x_range = np.linspace(0, max(recoveryData.omega)+0.05, 100)
+          y_range = model.predict(x_range.reshape(-1, 1))
+          fig.add_trace(go.Scatter(x=x_range, y=y_range[:,0], mode='lines', line=dict(color='red', width=2)), row=1, col=3)
+          
+          model = LinearRegression()
+          model.fit(recoveryData[["beta"]].values.reshape(-1,1), recoveryData[["recovered2AddBeta"]])
+          x_range = np.linspace(0, max(recoveryData.beta)+0.05, 100)
+          y_range = model.predict(x_range.reshape(-1, 1))
+          fig.add_trace(go.Scatter(x=x_range, y=y_range[:,0], mode='lines', line=dict(color='red', width=2)), row=1, col=4)
           
           # Add scatter traces
           fig.add_trace(go.Scatter(
