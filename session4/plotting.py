@@ -318,7 +318,7 @@ def plot_recovered_parameters(recoveryData):
           
           fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
           fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=3)
-          fig.add_trace(go.Scatter(x=[0, max(recoveryData.beta)+0.05], y=[0, max(recoveryData.beta)+0.05], mode='lines', line=dict(color='black', width=1)), row=1, col=4)
+          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=4)
 
           # Add trendlines
           model = LinearRegression()
@@ -397,8 +397,27 @@ def plot_recovered_parameters(recoveryData):
           # Add line traces
           fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=1)
           fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
-          fig.add_trace(go.Scatter(x=[0, max(recoveryData.beta)+0.05], y=[0, max(recoveryData.beta)+0.05], mode='lines', line=dict(color='black', width=1)), row=1, col=3)
-
+          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=3)
+          
+           # Add trendlines
+          model = LinearRegression()
+          model.fit(recoveryData[["alphaStable"]].values.reshape(-1,1), recoveryData[["recovered2MulAlphaS"]]) 
+          x_range = np.linspace(0, 1, 100)
+          y_range = model.predict(x_range.reshape(-1, 1))
+          fig.add_trace(go.Scatter(x=x_range, y=y_range[:,0], mode='lines', line=dict(color='red', width=2)), row=1, col=1)
+          
+          model = LinearRegression()
+          model.fit(recoveryData[["alphaVolatile"]].values.reshape(-1,1), recoveryData[["recovered2MulAlphaV"]])
+          x_range = np.linspace(0, 1, 100)
+          y_range = model.predict(x_range.reshape(-1, 1))
+          fig.add_trace(go.Scatter(x=x_range, y=y_range[:,0], mode='lines', line=dict(color='red', width=2)), row=1, col=2)
+          
+          model = LinearRegression()
+          model.fit(recoveryData[["beta"]].values.reshape(-1,1), recoveryData[["recovered2MulBeta"]])
+          x_range = np.linspace(0, max(recoveryData.beta)+0.05, 100)
+          y_range = model.predict(x_range.reshape(-1, 1))
+          fig.add_trace(go.Scatter(x=x_range, y=y_range[:,0], mode='lines', line=dict(color='red', width=2)), row=1, col=3)
+            
           # Add scatter traces
           fig.add_trace(go.Scatter(
                             x=recoveryData["alphaStable"],
@@ -442,8 +461,27 @@ def plot_recovered_parameters(recoveryData):
           # Add line traces
           fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=1)
           fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
-          fig.add_trace(go.Scatter(x=[0, max(recoveryData.beta)+0.05], y=[0, max(recoveryData.beta)+0.05], mode='lines', line=dict(color='black', width=1)), row=1, col=3)
-
+          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=3)
+          
+          # Add trendlines
+          model = LinearRegression()
+          model.fit(recoveryData[["alpha"]].values.reshape(-1,1), recoveryData[["recovered1AddAlpha"]]) 
+          x_range = np.linspace(0, 1, 100)
+          y_range = model.predict(x_range.reshape(-1, 1))
+          fig.add_trace(go.Scatter(x=x_range, y=y_range[:,0], mode='lines', line=dict(color='red', width=2)), row=1, col=1)
+          
+          model = LinearRegression()
+          model.fit(recoveryData[["omega"]].values.reshape(-1,1), recoveryData[["recovered1AddOmega"]])
+          x_range = np.linspace(0, max(recoveryData.omega)+0.05, 100)
+          y_range = model.predict(x_range.reshape(-1, 1))
+          fig.add_trace(go.Scatter(x=x_range, y=y_range[:,0], mode='lines', line=dict(color='red', width=2)), row=1, col=2)
+          
+          model = LinearRegression()
+          model.fit(recoveryData[["beta"]].values.reshape(-1,1), recoveryData[["recovered1AddBeta"]])
+          x_range = np.linspace(0, max(recoveryData.beta)+0.05, 100)
+          y_range = model.predict(x_range.reshape(-1, 1))
+          fig.add_trace(go.Scatter(x=x_range, y=y_range[:,0], mode='lines', line=dict(color='red', width=2)), row=1, col=3)
+            
           # Add scatter traces
           fig.add_trace(go.Scatter(
                             x=recoveryData["alpha"],
@@ -484,8 +522,21 @@ def plot_recovered_parameters(recoveryData):
           
           # Add line traces
           fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=1)
-          fig.add_trace(go.Scatter(x=[0, max(recoveryData.beta)+0.05], y=[0, max(recoveryData.beta)+0.05], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
+          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
 
+          # Add trendlines
+          model = LinearRegression()
+          model.fit(recoveryData[["alpha"]].values.reshape(-1,1), recoveryData[["recovered1MulAlpha"]]) 
+          x_range = np.linspace(0, 1, 100)
+          y_range = model.predict(x_range.reshape(-1, 1))
+          fig.add_trace(go.Scatter(x=x_range, y=y_range[:,0], mode='lines', line=dict(color='red', width=2)), row=1, col=1)
+          
+          model = LinearRegression()
+          model.fit(recoveryData[["beta"]].values.reshape(-1,1), recoveryData[["recovered1MulBeta"]])
+          x_range = np.linspace(0, max(recoveryData.beta)+0.05, 100)
+          y_range = model.predict(x_range.reshape(-1, 1))
+          fig.add_trace(go.Scatter(x=x_range, y=y_range[:,0], mode='lines', line=dict(color='red', width=2)), row=1, col=2)
+          
           # Add scatter traces
           fig.add_trace(go.Scatter(
                             x=recoveryData["alpha"],
