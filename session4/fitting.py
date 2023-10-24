@@ -112,9 +112,7 @@ def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None
                                            "BIC"])
 
 
-  for i, s in enumerate(IDs):
-    display("fitting subject " + str(s))
-    
+  for i, s in enumerate(IDs):    
 
     # load in data
     _, choice1, magOpt1, magOpt2, opt1Rewarded = load_blain(s)

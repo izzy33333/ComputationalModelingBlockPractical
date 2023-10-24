@@ -51,3 +51,14 @@ def load_model_fits():
   data1AlphaAdd.ID = data1AlphaAdd.ID.astype(int)
   data2AlphaAdd.ID = data2AlphaAdd.ID.astype(int)
   return data1AlphaMul, data2AlphaMul, data1AlphaAdd, data2AlphaAdd
+
+def load_parameter_recovery():
+  recov1AlphaMul = pd.read_csv("recov1AlphaMul.csv")
+  recov2AlphaMul = pd.read_csv("recov2AlphaMul.csv")
+  recov1AlphaAdd = pd.read_csv("recov1AlphaAdd.csv")
+  recov2AlphaAdd = pd.read_csv("recov2AlphaAdd.csv")
+  recov1AlphaMul.ID = recov1AlphaMul.ID.astype(int)
+  recov2AlphaMul.ID = recov2AlphaMul.ID.astype(int)
+  recov1AlphaAdd.ID = recov1AlphaAdd.ID.astype(int)
+  recov2AlphaAdd.ID = recov2AlphaAdd.ID.astype(int)
+  return recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov2AlphaAdd

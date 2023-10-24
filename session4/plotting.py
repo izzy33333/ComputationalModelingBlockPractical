@@ -10,6 +10,9 @@ from plotly.subplots import make_subplots
 import plotly.io as pio
 import plotly.express as px
 
+# this allows us to calculate trendlines
+from sklearn.linear_model import LinearRegression
+
 # set the style of the plotly figures
 pio.templates.default = "none"
 
@@ -316,33 +319,52 @@ def plot_recovered_parameters(recoveryData):
           fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=3)
           fig.add_trace(go.Scatter(x=[0, max(recoveryData.beta)+0.05], y=[0, max(recoveryData.beta)+0.05], mode='lines', line=dict(color='black', width=1)), row=1, col=4)
 
+          # Add trendlines
+          model = LinearRegression()
+          model.fit(recoveryData[["alphaStable"]], recoveryData[["recovered2AddAlphaS"]]) 
+          x_range = np.linspace(0, 1, 100)
+          y_range = model.predict(x_range.reshape(-1, 1))
+          fig.add_traces(go.Scatter(x=x_range, y=y_range, mode='lines', line=dict(color='red', width=2)), row=1, col=1)
+          
           # Add scatter traces
           fig.add_trace(go.Scatter(
                             x=recoveryData["alphaStable"],
                             y=recoveryData["recovered2AddAlphaS"],
                             mode='markers',
-                            marker=dict(color="blue")),
+                            color='rgba(0, 0, 255, 0.3)',
+                            hovertemplate = 'Simulated beta: %{customdata[0]}<br>Recovered beta: %{customdata[1]}<br>Simulated alpha volatile: %{customdata[2]}<br>Recovered alpha volatile: %{customdata[3]}<br>Simulated omega: %{customdata[4]}<br>Recovered omega: %{customdata[5]}<extra></extra>',
+                            customdata = np.stack((round(recoveryData["beta"],3), round(recoveryData["recovered2AddBeta"],3), round(recoveryData["alphaVolatile"],3), round(recoveryData["recovered2AddAlphaV"],3), round(recoveryData["omega"],3), round(recoveryData["recovered2AddOmega"],3)), axis=-1),
+                            ),
                     row=1, col=1)
           
           fig.add_trace(go.Scatter(
                             x=recoveryData["alphaVolatile"],
                             y=recoveryData["recovered2AddAlphaV"],
                             mode='markers',
-                            marker=dict(color="blue")),
+                            color='rgba(0, 0, 255, 0.3)',
+                            hovertemplate = 'Simulated beta: %{customdata[0]}<br>Recovered beta: %{customdata[1]}<br>Simulated alpha stable: %{customdata[2]}<br>Recovered alpha stable: %{customdata[3]}<br>Simulated omega: %{customdata[4]}<br>Recovered omega: %{customdata[5]}<extra></extra>',
+                            customdata = np.stack((round(recoveryData["beta"],3), round(recoveryData["recovered2AddBeta"],3), round(recoveryData["alphaStable"],3), round(recoveryData["recovered2AddAlphaS"],3), round(recoveryData["omega"],3), round(recoveryData["recovered2AddOmega"],3)), axis=-1),
+                            ),
                     row=1, col=2)
           
           fig.add_trace(go.Scatter(
                             x=recoveryData["omega"],
                             y=recoveryData["recovered2AddOmega"],
                             mode='markers',
-                            marker=dict(color="blue")),
+                            color='rgba(0, 0, 255, 0.3)',
+                            hovertemplate = 'Simulated beta: %{customdata[0]}<br>Recovered beta: %{customdata[1]}<br>Simulated alpha stable: %{customdata[2]}<br>Recovered alpha stable: %{customdata[3]}<br>Simulated alpha volatile: %{customdata[4]}<br>Recovered alpha volatile: %{customdata[5]}<extra></extra>',
+                            customdata = np.stack((round(recoveryData["beta"],3), round(recoveryData["recovered2AddBeta"],3), round(recoveryData["alphaStable"],3), round(recoveryData["recovered2AddAlphaS"],3), round(recoveryData["alphaVolatile"],3), round(recoveryData["recovered2AddAlphaV"],3)), axis=-1),
+                            ),
                     row=1, col=3)
 
           fig.add_trace(go.Scatter(
                             x=recoveryData["beta"],
                             y=recoveryData["recovered2AddBeta"],
                             mode='markers',
-                            marker=dict(color='blue')),
+                            color='rgba(0, 0, 255, 0.3)',
+                            hovertemplate = 'Simulated alpha stable: %{customdata[0]}<br>Recovered alpha stable: %{customdata[1]}<br>Simulated alpha volatile: %{customdata[2]}<br>Recovered alpha volatile: %{customdata[3]}<br>Simulated omega: %{customdata[4]}<br>Recovered omega: %{customdata[5]}<extra></extra>',
+                            customdata = np.stack((round(recoveryData["alphaStable"],3), round(recoveryData["recovered2AddAlphaS"],3), round(recoveryData["alphaVolatile"],3), round(recoveryData["recovered2AddAlphaV"],3), round(recoveryData["omega"],3), round(recoveryData["recovered2AddOmega"],3)), axis=-1),
+                            ),
                     row=1, col=4)
 
           fig.update_layout(xaxis1_title="simulated", yaxis1_title="recovered", showlegend=False)
@@ -363,21 +385,30 @@ def plot_recovered_parameters(recoveryData):
                             x=recoveryData["alphaStable"],
                             y=recoveryData["recovered2MulAlphaS"],
                             mode='markers',
-                            marker=dict(color="blue")),
+                            marker=dict(color="blue"),
+                            hovertemplate='Simulated beta: %{customdata[0]}<br>Recovered beta: %{customdata[1]}<br>Simulated alpha volatile: %{customdata[2]}<br>Recovered alpha volatile: %{customdata[3]}<extra></extra>',
+                            customdata = np.stack((round(recoveryData["beta"],3), round(recoveryData["recovered2MulBeta"],3), round(recoveryData["alphaVolatile"],3), round(recoveryData["recovered2MulAlphaV"],3)), axis=-1),
+                            ),
                     row=1, col=1)
           
           fig.add_trace(go.Scatter(
                             x=recoveryData["alphaVolatile"],
                             y=recoveryData["recovered2MulAlphaV"],
                             mode='markers',
-                            marker=dict(color="blue")),
+                            marker=dict(color="blue"),
+                            hovertemplate = 'Simulated beta: %{customdata[0]}<br>Recovered beta: %{customdata[1]}<br>Simulated alpha stable: %{customdata[2]}<br>Recovered alpha stable: %{customdata[3]}<extra></extra>',
+                            customdata = np.stack((round(recoveryData["beta"],3), round(recoveryData["recovered2MulBeta"],3), round(recoveryData["alphaStable"],3), round(recoveryData["recovered2MulAlphaS"],3)), axis=-1),
+                            ),
                     row=1, col=2)
 
           fig.add_trace(go.Scatter(
                             x=recoveryData["beta"],
                             y=recoveryData["recovered2MulBeta"],
                             mode='markers',
-                            marker=dict(color='blue')),
+                            marker=dict(color='blue'),
+                            hovertemplate = 'Simulated alpha stable: %{customdata[0]}<br>Recovered alpha stable: %{customdata[1]}<br>Simulated alpha volatile: %{customdata[2]}<br>Recovered alpha volatile: %{customdata[3]}<extra></extra>',
+                            customdata = np.stack((round(recoveryData["alphaStable"],3), round(recoveryData["recovered2MulAlphaS"],3), round(recoveryData["alphaVolatile"],3), round(recoveryData["recovered2MulAlphaV"],3)), axis=-1),
+                            ),
                     row=1, col=3)
 
           fig.update_layout(xaxis1_title="simulated", yaxis1_title="recovered", showlegend=False)
@@ -399,21 +430,30 @@ def plot_recovered_parameters(recoveryData):
                             x=recoveryData["alpha"],
                             y=recoveryData["recovered1AddAlpha"],
                             mode='markers',
-                            marker=dict(color="blue")),
+                            marker=dict(color="blue"),
+                            hovertemplate = 'Simulated beta: %{customdata[0]}<br>Recovered beta: %{customdata[1]}<br>Simulated omega: %{customdata[2]}<br>Recovered omega: %{customdata[3]}<extra></extra>',
+                            customdata = np.stack((round(recoveryData["beta"],3), round(recoveryData["recovered1AddBeta"],3), round(recoveryData["omega"],3), round(recoveryData["recovered1AddOmega"],3)), axis=-1),
+                            ),
                     row=1, col=1)
           
           fig.add_trace(go.Scatter(
                             x=recoveryData["omega"],
                             y=recoveryData["recovered1AddOmega"],
                             mode='markers',
-                            marker=dict(color="blue")),
+                            marker=dict(color="blue")
+                            hovertemplate = 'Simulated beta: %{customdata[0]}<br>Recovered beta: %{customdata[1]}<br>Simulated alpha: %{customdata[2]}<br>Recovered alpha: %{customdata[3]}<extra></extra>',
+                            customdata = np.stack((round(recoveryData["beta"],3), round(recoveryData["recovered1AddBeta"],3), round(recoveryData["alpha"],3), round(recoveryData["recovered1AddAlpha"],3)), axis=-1),
+                            ),
                     row=1, col=2)
 
           fig.add_trace(go.Scatter(
                             x=recoveryData["beta"],
                             y=recoveryData["recovered1AddBeta"],
                             mode='markers',
-                            marker=dict(color='blue')),
+                            marker=dict(color='blue'),
+                            hovertemplate = 'Simulated alpha: %{customdata[0]}<br>Recovered alpha: %{customdata[1]}<br>Simulated omega: %{customdata[2]}<br>Recovered omega: %{customdata[3]}<extra></extra>',
+                            customdata = np.stack((round(recoveryData["alpha"],3), round(recoveryData["recovered1AddAlpha"],3), round(recoveryData["omega"],3), round(recoveryData["recovered1AddOmega"],3)), axis=-1),
+                            ),
                     row=1, col=3)
 
           fig.update_layout(xaxis1_title="simulated", yaxis1_title="recovered", showlegend=False)
@@ -432,14 +472,20 @@ def plot_recovered_parameters(recoveryData):
                             x=recoveryData["alpha"],
                             y=recoveryData["recovered1MulAlpha"],
                             mode='markers',
-                            marker=dict(color="blue")),
+                            marker=dict(color="blue"),
+                            hovertemplate = 'Simulated beta: %{customdata[0]}<br>Recovered beta: %{customdata[1]}<extra></extra>',
+                            customdata = np.stack((round(recoveryData["beta"],3), round(recoveryData["recovered1MulBeta"],3)), axis=-1),
+                            ),
                     row=1, col=1)
 
           fig.add_trace(go.Scatter(
                             x=recoveryData["beta"],
                             y=recoveryData["recovered1MulBeta"],
                             mode='markers',
-                            marker=dict(color='blue')),
+                            marker=dict(color='blue'),
+                            hovertemplate = 'Simulated alpha: %{customdata[0]}<br>Recovered alpha: %{customdata[1]}<extra></extra>',
+                            customdata = np.stack((round(recoveryData["alpha"],3), round(recoveryData["recovered1MulAlpha"],3)), axis=-1),
+                            ),
                     row=1, col=2)
 
           fig.update_layout(xaxis1_title="simulated", yaxis1_title="recovered", showlegend=False)
