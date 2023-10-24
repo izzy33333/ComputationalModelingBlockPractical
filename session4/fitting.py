@@ -400,3 +400,9 @@ def recov_chi2_test(recovData, degrees_of_freedom = 75, nReps = 100):
     lambda_LR = 2*sum(recovData['recovered2AddLL'][degrees_of_freedom*i:degrees_of_freedom+degrees_of_freedom*i] - recovData['recovered1AddLL'][degrees_of_freedom*i:degrees_of_freedom+degrees_of_freedom*i] )
     p_values_add[i] = chi2.sf(lambda_LR, degrees_of_freedom)
   return p_values_mul, p_values_add
+
+def recov_BICs(recovData, num_simulated_participants = 75, nReps = 100):
+  winning_BIC = np.zeros(4)
+  for i in range(nReps):
+    winning_BIC[np.argmin([sum(recovData['recovered1MulBIC'][num_simulated_participants*i:num_simulated_participants+num_simulated_participants*i]),sum(recovData['recovered2MulBIC'][num_simulated_participants*i:num_simulated_participants+num_simulated_participants*i]),sum(recovData['recovered1AddBIC'][num_simulated_participants*i:num_simulated_participants+num_simulated_participants*i]),sum(recovData['recovered2AddBIC'][num_simulated_participants*i:num_simulated_participants+num_simulated_participants*i])])] += 1
+  return winning_BIC

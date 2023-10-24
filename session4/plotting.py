@@ -573,9 +573,39 @@ def visualise_LR_recovery(recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov2
   
 
   fig = go.Figure(data=[
-      go.Bar(name='1 alpha', x=models, y=[sum(p_recov1AlphaMul<0.05)/nReps, sum(p_recov1AlphaAdd<p)/nReps]),
-      go.Bar(name='2 alphas', x=models, y=[sum(p_recov2AlphaMul<0.05)/nReps, sum(p_recov2AlphaAdd<p)/nReps])
+      go.Bar(name='1 alpha', x=models, y=[sum(p_recov1AlphaMul<p)/nReps, sum(p_recov1AlphaAdd<p)/nReps]),
+      go.Bar(name='2 alphas', x=models, y=[sum(p_recov2AlphaMul<p)/nReps, sum(p_recov2AlphaAdd<p)/nReps])
   ])
 
   fig.update_layout(barmode='group', title = 'significant LR tests at p < ' + str(p), xaxis_title = 'simulated with', yaxis_title = 'fraction significant LR tests')
   fig.show()
+  
+  def visualise_BIC_recovery(recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov2AlphaAdd, num_simulated_participants = 75, nReps = 100):
+  BICs = np.vstack((
+      recov_BICs(recov1AlphaMul, num_simulated_participants = num_simulated_participants, nReps = nReps),
+      recov_BICs(recov2AlphaMul, num_simulated_participants = num_simulated_participants, nReps = nReps),
+      recov_BICs(recov1AlphaAdd, num_simulated_participants = num_simulated_participants, nReps = nReps),
+      recov_BICs(recov2AlphaAdd, num_simulated_participants = num_simulated_participants, nReps = nReps)))/nReps
+
+  labels = ['1 alpha, multiplicative utility','2 alphas, multiplicative utility', '1 alpha, additive utility', '2 alphas, additive utility']
+  heat = go.Heatmap(z=BICs,
+                    x=labels,
+                    y=labels,
+                    xgap=1, ygap=1,
+                    colorbar_thickness=20,
+                    colorbar_ticklen=3)
+
+  layout = go.Layout(title_text='Frequency of BIC comparisons that identify a model', 
+                    width=600, height=600,
+                    xaxis_showgrid=False,
+                    yaxis_showgrid=False,
+                    yaxis_autorange='reversed')
+    
+  fig=go.Figure(data=[heat], layout=layout)
+  fig.update_layout(
+      margin=dict(l=230, r=30, t=30, b=230),
+      xaxis_title="recovered with",
+      yaxis_title="simulated with"
+  ) 
+  fig.update_xaxes(tickangle=-45)       
+  fig.show() 
