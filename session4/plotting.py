@@ -580,7 +580,7 @@ def visualise_LR_recovery(recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov2
   fig.update_layout(barmode='group', title = 'significant LR tests at p < ' + str(p), xaxis_title = 'simulated with', yaxis_title = 'fraction significant LR tests')
   fig.show()
   
-  def visualise_BIC_recovery(recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov2AlphaAdd, num_simulated_participants = 75, nReps = 100):
+def visualise_BIC_recovery(recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov2AlphaAdd, num_simulated_participants = 75, nReps = 100):
   BICs = np.vstack((
       recov_BICs(recov1AlphaMul, num_simulated_participants = num_simulated_participants, nReps = nReps),
       recov_BICs(recov2AlphaMul, num_simulated_participants = num_simulated_participants, nReps = nReps),
