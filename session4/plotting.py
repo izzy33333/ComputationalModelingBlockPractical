@@ -319,28 +319,28 @@ def plot_recovered_parameters(recoveryData):
           # Add scatter traces
           fig.add_trace(go.Scatter(
                             x=recoveryData["alphaStable"],
-                            y=recoveryData["recovered2AlphaS"],
+                            y=recoveryData["recovered2AddAlphaS"],
                             mode='markers',
                             marker=dict(color="blue")),
                     row=1, col=1)
           
           fig.add_trace(go.Scatter(
                             x=recoveryData["alphaVolatile"],
-                            y=recoveryData["recovered2AlphaV"],
+                            y=recoveryData["recovered2AddAlphaV"],
                             mode='markers',
                             marker=dict(color="blue")),
                     row=1, col=2)
           
           fig.add_trace(go.Scatter(
                             x=recoveryData["omega"],
-                            y=recoveryData["recovered2Omega"],
+                            y=recoveryData["recovered2AddOmega"],
                             mode='markers',
                             marker=dict(color="blue")),
                     row=1, col=3)
 
           fig.add_trace(go.Scatter(
                             x=recoveryData["beta"],
-                            y=recoveryData["recovered2Beta"],
+                            y=recoveryData["recovered2AddBeta"],
                             mode='markers',
                             marker=dict(color='blue')),
                     row=1, col=4)
@@ -361,21 +361,21 @@ def plot_recovered_parameters(recoveryData):
           # Add scatter traces
           fig.add_trace(go.Scatter(
                             x=recoveryData["alphaStable"],
-                            y=recoveryData["recovered2AlphaS"],
+                            y=recoveryData["recovered2MulAlphaS"],
                             mode='markers',
                             marker=dict(color="blue")),
                     row=1, col=1)
           
           fig.add_trace(go.Scatter(
                             x=recoveryData["alphaVolatile"],
-                            y=recoveryData["recovered2AlphaV"],
+                            y=recoveryData["recovered2MulAlphaV"],
                             mode='markers',
                             marker=dict(color="blue")),
                     row=1, col=2)
 
           fig.add_trace(go.Scatter(
                             x=recoveryData["beta"],
-                            y=recoveryData["recovered2Beta"],
+                            y=recoveryData["recovered2MulBeta"],
                             mode='markers',
                             marker=dict(color='blue')),
                     row=1, col=3)
@@ -397,21 +397,21 @@ def plot_recovered_parameters(recoveryData):
           # Add scatter traces
           fig.add_trace(go.Scatter(
                             x=recoveryData["alpha"],
-                            y=recoveryData["recovered1Alpha"],
+                            y=recoveryData["recovered1AddAlpha"],
                             mode='markers',
                             marker=dict(color="blue")),
                     row=1, col=1)
           
           fig.add_trace(go.Scatter(
                             x=recoveryData["omega"],
-                            y=recoveryData["recovered1Omega"],
+                            y=recoveryData["recovered1AddOmega"],
                             mode='markers',
                             marker=dict(color="blue")),
                     row=1, col=2)
 
           fig.add_trace(go.Scatter(
                             x=recoveryData["beta"],
-                            y=recoveryData["recovered1Beta"],
+                            y=recoveryData["recovered1AddBeta"],
                             mode='markers',
                             marker=dict(color='blue')),
                     row=1, col=3)
@@ -430,14 +430,14 @@ def plot_recovered_parameters(recoveryData):
           # Add scatter traces
           fig.add_trace(go.Scatter(
                             x=recoveryData["alpha"],
-                            y=recoveryData["recovered1Alpha"],
+                            y=recoveryData["recovered1MulAlpha"],
                             mode='markers',
                             marker=dict(color="blue")),
                     row=1, col=1)
 
           fig.add_trace(go.Scatter(
                             x=recoveryData["beta"],
-                            y=recoveryData["recovered1Beta"],
+                            y=recoveryData["recovered1MulBeta"],
                             mode='markers',
                             marker=dict(color='blue')),
                     row=1, col=2)

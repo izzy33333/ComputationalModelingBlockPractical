@@ -74,29 +74,28 @@ def loglikelihood_RL_model(opt1Rewarded,
   return LL
 
 
-def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None, alpha_V = None, beta = None, omega = None, rng = np.random.default_rng(12345), method = 'BFGS'):
+def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None, alpha_V = None, beta = None, omega = None, rng = np.random.default_rng(12345)):
   
   numSubjects = len(IDs)
   
   if utility_function == multiplicative_utility:
   
-    fitData1Alpha = pd.DataFrame(np.zeros((numSubjects, 5)),
+    fitData1AlphaMul = pd.DataFrame(np.zeros((numSubjects, 5)),
                                 columns = ["ID",
                                            "alpha",
                                            "beta",
                                            "LL",
                                            "BIC"])
 
-    fitData2Alpha = pd.DataFrame(np.zeros((numSubjects, 6)),
+    fitData2AlphaMul = pd.DataFrame(np.zeros((numSubjects, 6)),
                                 columns = ["ID",
                                            "alphaStable",
                                            "alphaVolatile",
                                            "beta",
                                            "LL",
                                            "BIC"])
-  elif utility_function == additive_utility:
     
-    fitData1Alpha = pd.DataFrame(np.zeros((numSubjects, 6)),
+    fitData1AlphaAdd = pd.DataFrame(np.zeros((numSubjects, 6)),
                                 columns = ["ID",
                                            "alpha",
                                            "beta",
@@ -104,7 +103,7 @@ def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None
                                            "LL",
                                            "BIC"])
 
-    fitData2Alpha = pd.DataFrame(np.zeros((numSubjects, 7)),
+    fitData2AlphaAdd = pd.DataFrame(np.zeros((numSubjects, 7)),
                                 columns = ["ID",
                                            "alphaStable",
                                            "alphaVolatile",
@@ -140,85 +139,83 @@ def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None
           choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
           
         
-    if utility_function == multiplicative_utility:
-      # create functions to be minimized
-      def min_fun(x):
-        LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[1]), utility_function = utility_function)
-        LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[0]), logistic.cdf(x[1]), utility_function = utility_function)
-        return - (LL1 + LL2)
+    # create functions to be minimized
+    def min_fun(x):
+      LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[1]), utility_function = utility_function)
+      LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[0]), logistic.cdf(x[1]), utility_function = utility_function)
+      return - (LL1 + LL2)
 
-      # fit the data of this participant
-      fitted_parameters_1_alpha = minimize(min_fun, [0, -1.5], method = method)
-      
-      fitData1Alpha.BIC[i]   = 2*np.log(160) + 2*fitted_parameters_1_alpha.fun
-      
-    elif utility_function == additive_utility:
-      if simulate:
-        # simulate an artificial participant
-        if s < 37:
-          choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_S[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
-          choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_V[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
-        else:
-          choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_V[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
-          choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
-        
-      # create functions to be minimized
-      def min_fun(x):
-        LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[1]), logistic.cdf(x[2]), utility_function = utility_function)
-        LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[0]), logistic.cdf(x[1]), logistic.cdf(x[2]), utility_function = utility_function)
-        return - (LL1 + LL2)
-
-      # fit the data of this participant
-      fitted_parameters_1_alpha = minimize(min_fun, [0, -1.5, 0], method = method)
-      
-      fitData1Alpha.omega[i] = logistic.cdf(fitted_parameters_1_alpha.x[2])
-      fitData1Alpha.BIC[i] = 3*np.log(160) + 2*fitted_parameters_1_alpha.fun
-
-    # save the data
-    fitData1Alpha.alpha[i] = logistic.cdf(fitted_parameters_1_alpha.x[0])
-    fitData1Alpha.beta[i]  = logistic.cdf(fitted_parameters_1_alpha.x[1])
-    fitData1Alpha.LL[i]    = -fitted_parameters_1_alpha.fun
-    fitData1Alpha.ID[i]    = s
+    # fit the data of this participant
+    fitted_parameters_1_alpha_mul = minimize(min_fun, [0, -1.5], method = 'Nelder-Mead')
     
-    if utility_function == multiplicative_utility:  
-      # create functions to be minimized
-      def min_fun(x):
-        LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[2]), utility_function = utility_function)
-        LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[1]), logistic.cdf(x[2]), utility_function = utility_function)
-        return - (LL1 + LL2)
-
-      # fit the data of this participant
-      fitted_parameters_2_alpha = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1]], method = method)
+    fitData1AlphaMul.BIC[i]   = 2*np.log(160) + 2*fitted_parameters_1_alpha_mul.fun
+    fitData1AlphaMul.alpha[i] = logistic.cdf(fitted_parameters_1_alpha_mul.x[0])
+    fitData1AlphaMul.beta[i]  = logistic.cdf(fitted_parameters_1_alpha_mul.x[1])
+    fitData1AlphaMul.LL[i]    = -fitted_parameters_1_alpha_mul.fun
+    fitData1AlphaMul.ID[i]    = s
       
-      fitData2Alpha.BIC[i]  = 3*np.log(160) + 2*fitted_parameters_2_alpha.fun
-      
-    elif utility_function == additive_utility:
-      # create functions to be minimized
-      def min_fun(x):
-        LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[2]), logistic.cdf(x[3]), utility_function = utility_function)
-        LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[1]), logistic.cdf(x[2]), logistic.cdf(x[3]), utility_function = utility_function)
-        return - (LL1 + LL2)
+    # create functions to be minimized
+    def min_fun(x):
+      LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[1]), logistic.cdf(x[2]), utility_function = utility_function)
+      LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[0]), logistic.cdf(x[1]), logistic.cdf(x[2]), utility_function = utility_function)
+      return - (LL1 + LL2)
 
-      # fit the data of this participant
-      fitted_parameters_2_alpha = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1], fitted_parameters_1_alpha.x[2]], method = method)
-
-      fitData2Alpha.omega[i] = logistic.cdf(fitted_parameters_2_alpha.x[3])
-      fitData2Alpha.BIC[i] = 4*np.log(160) + 2*fitted_parameters_2_alpha.fun
+    # fit the data of this participant
+    fitted_parameters_1_alpha_add = minimize(min_fun, [0, -1.5, 0], method = 'BFGS')
       
-    # save the data
+    fitData1AlphaAdd.omega[i] = logistic.cdf(fitted_parameters_1_alpha_add.x[2])
+    fitData1AlphaAdd.BIC[i] = 3*np.log(160) + 2*fitted_parameters_1_alpha_add.fun
+    fitData1AlphaAdd.alpha[i] = logistic.cdf(fitted_parameters_1_alpha_add.x[0])
+    fitData1AlphaAdd.beta[i]  = logistic.cdf(fitted_parameters_1_alpha_add.x[1])
+    fitData1AlphaAdd.LL[i]    = -fitted_parameters_1_alpha_add.fun
+    fitData1AlphaAdd.ID[i]    = s
+
+    # create functions to be minimized
+    def min_fun(x):
+      LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[2]), utility_function = utility_function)
+      LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[1]), logistic.cdf(x[2]), utility_function = utility_function)
+      return - (LL1 + LL2)
+
+    # fit the data of this participant
+    fitted_parameters_2_alpha_mul = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1]], method = 'Nelder-Mead')
+    
+    fitData2AlphaMul.BIC[i]  = 3*np.log(160) + 2*fitted_parameters_2_alpha_mul.fun
     if s < 37:
-      fitData2Alpha.alphaStable[i]   = logistic.cdf(fitted_parameters_2_alpha.x[0])
-      fitData2Alpha.alphaVolatile[i] = logistic.cdf(fitted_parameters_2_alpha.x[1])
+      fitData2AlphaMul.alphaStable[i]   = logistic.cdf(fitted_parameters_2_alpha_mul.x[0])
+      fitData2AlphaMul.alphaVolatile[i] = logistic.cdf(fitted_parameters_2_alpha_mul.x[1])
 
     else:
-      fitData2Alpha.alphaStable[i]   = logistic.cdf(fitted_parameters_2_alpha.x[1])
-      fitData2Alpha.alphaVolatile[i] = logistic.cdf(fitted_parameters_2_alpha.x[0])
+      fitData2AlphaMul.alphaStable[i]   = logistic.cdf(fitted_parameters_2_alpha_mul.x[1])
+      fitData2AlphaMul.alphaVolatile[i] = logistic.cdf(fitted_parameters_2_alpha_mul.x[0])
 
-    fitData2Alpha.beta[i] = logistic.cdf(fitted_parameters_2_alpha.x[2])
-    fitData2Alpha.LL[i]   = -fitted_parameters_2_alpha.fun
-    fitData2Alpha.ID[i]   = s
-    
-  return fitData1Alpha, fitData2Alpha
+    fitData2AlphaMul.beta[i] = logistic.cdf(fitted_parameters_2_alpha_mul.x[2])
+    fitData2AlphaMul.LL[i]   = -fitted_parameters_2_alpha_mul.fun
+    fitData2AlphaMul.ID[i]   = s
+      
+    # create functions to be minimized
+    def min_fun(x):
+      LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[2]), logistic.cdf(x[3]), utility_function = utility_function)
+      LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[1]), logistic.cdf(x[2]), logistic.cdf(x[3]), utility_function = utility_function)
+      return - (LL1 + LL2)
+
+    # fit the data of this participant
+    fitted_parameters_2_alpha_add = minimize(min_fun, [fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[0], fitted_parameters_1_alpha.x[1], fitted_parameters_1_alpha.x[2]], method = 'BFGS')
+
+    fitData2AlphaAdd.omega[i] = logistic.cdf(fitted_parameters_2_alpha_add.x[3])
+    fitData2AlphaAdd.BIC[i] = 4*np.log(160) + 2*fitted_parameters_2_alpha_add.fun
+    if s < 37:
+      fitData2AlphaAdd.alphaStable[i]   = logistic.cdf(fitted_parameters_2_alpha_add.x[0])
+      fitData2AlphaAdd.alphaVolatile[i] = logistic.cdf(fitted_parameters_2_alpha_add.x[1])
+
+    else:
+      fitData2AlphaAdd.alphaStable[i]   = logistic.cdf(fitted_parameters_2_alpha_add.x[1])
+      fitData2AlphaAdd.alphaVolatile[i] = logistic.cdf(fitted_parameters_2_alpha_add.x[0])
+
+    fitData2AlphaAdd.beta[i] = logistic.cdf(fitted_parameters_2_alpha_add.x[2])
+    fitData2AlphaAdd.LL[i]   = -fitted_parameters_2_alpha_add.fun
+    fitData2AlphaAdd.ID[i]   = s  
+        
+  return fitData1AlphaMul, fitData2AlphaMul, fitData1AlphaAdd, fitData2AlphaAdd
 
 
 def simulate_RL_model(opt1Rewarded,
@@ -323,7 +320,7 @@ def parameter_recovery(
       dataTmp.alphaVolatile = rng.permutation(dataTmp.alphaVolatile)
       if any(dataTmp.columns == 'omega'):
         dataTmp.omega = rng.permutation(dataTmp.omega)
-        data1Alpha, data2Alpha = fit_participant_data(
+        data1AlphaMul, data2AlphaMul, data1AlphaAdd, data2AlphaAdd = fit_participant_data(
           additive_utility,
           dataTmp.ID,
           simulate=True,
@@ -331,25 +328,23 @@ def parameter_recovery(
           alpha_V = dataTmp.alphaVolatile,
           beta = dataTmp.beta,
           omega = dataTmp.omega,
-          rng = rng,
-          method = 'Nelder-Mead'
+          rng = rng          
           )
       else:
-        data1Alpha, data2Alpha = fit_participant_data(
+        data1AlphaMul, data2AlphaMul, data1AlphaAdd, data2AlphaAdd = fit_participant_data(
           multiplicative_utility,
           dataTmp.ID,
           simulate=True,
           alpha_S = dataTmp.alphaStable,
           alpha_V = dataTmp.alphaVolatile,
           beta = dataTmp.beta,
-          rng = rng,
-          method = 'BFGS'
+          rng = rng
           )
     else:
       dataTmp.alpha = rng.permutation(dataTmp.alpha)
       if any(dataTmp.columns == 'omega'):
         dataTmp.omega = rng.permutation(dataTmp.omega)
-        data1Alpha, data2Alpha = fit_participant_data(
+        data1AlphaMul, data2AlphaMul, data1AlphaAdd, data2AlphaAdd = fit_participant_data(
           additive_utility,
           dataTmp.ID,
           simulate=True,
@@ -357,33 +352,39 @@ def parameter_recovery(
           alpha_V = dataTmp.alpha,
           beta = dataTmp.beta,
           omega = dataTmp.omega,
-          rng = rng,
-          method = 'Nelder-Mead'
+          rng = rng
           )
       else:
-        data1Alpha, data2Alpha = fit_participant_data(
+        data1AlphaMul, data2AlphaMul, data1AlphaAdd, data2AlphaAdd = fit_participant_data(
           multiplicative_utility,
           dataTmp.ID,
           simulate=True,
           alpha_S = dataTmp.alpha,
           alpha_V = dataTmp.alpha,
           beta = dataTmp.beta,
-          rng = rng,
-          method = 'BFGS'
+          rng = rng
           )
-    dataTmp['recovered1Alpha'] = np.array(data1Alpha.alpha)
-    dataTmp['recovered1Beta'] = np.array(data1Alpha.beta)
-    if any(dataTmp.columns == 'omega'):
-      dataTmp['recovered1Omega'] = np.array(data1Alpha.omega)
-    dataTmp['recovered1LL'] = np.array(data1Alpha.LL)
-    dataTmp['recovered1BIC'] = np.array(data1Alpha.BIC)
-    dataTmp['recovered2AlphaS'] = np.array(data2Alpha.alphaStable)
-    dataTmp['recovered2AlphaV'] = np.array(data2Alpha.alphaVolatile)
-    dataTmp['recovered2Beta'] = np.array(data2Alpha.beta)
-    if any(dataTmp.columns == 'omega'):
-      dataTmp['recovered2Omega'] = np.array(data2Alpha.omega)
-    dataTmp['recovered2LL'] = np.array(data2Alpha.LL)
-    dataTmp['recovered2BIC'] = np.array(data2Alpha.BIC)
+    dataTmp['recovered1MulAlpha'] = np.array(data1AlphaMul.alpha)
+    dataTmp['recovered1MulBeta'] = np.array(data1AlphaMul.beta)
+    dataTmp['recovered1MulLL'] = np.array(data1AlphaMul.LL)
+    dataTmp['recovered1MulBIC'] = np.array(data1AlphaMul.BIC)
+    dataTmp['recovered2MulAlphaS'] = np.array(data2AlphaMul.alphaStable)
+    dataTmp['recovered2MulAlphaV'] = np.array(data2AlphaMul.alphaVolatile)
+    dataTmp['recovered2MulBeta'] = np.array(data2AlphaMul.beta)
+    dataTmp['recovered2MulLL'] = np.array(data2AlphaMul.LL)
+    dataTmp['recovered2MulBIC'] = np.array(data2AlphaMul.BIC)
+    
+    dataTmp['recovered1AddAlpha'] = np.array(data1AlphaAdd.alpha)
+    dataTmp['recovered1AddBeta'] = np.array(data1AlphaAdd.beta)
+    dataTmp['recovered1AddOmega'] = np.array(data1AlphaAdd.omega)
+    dataTmp['recovered1AddLL'] = np.array(data1AlphaAdd.LL)
+    dataTmp['recovered1AddBIC'] = np.array(data1AlphaAdd.BIC)
+    dataTmp['recovered2AddAlphaS'] = np.array(data2AlphaAdd.alphaStable)
+    dataTmp['recovered2AddAlphaV'] = np.array(data2AlphaAdd.alphaVolatile)
+    dataTmp['recovered2AddBeta'] = np.array(data2AlphaAdd.beta)
+    dataTmp['recovered2AddOmega'] = np.array(data2AlphaAdd.omega)
+    dataTmp['recovered2AddLL'] = np.array(data2AlphaAdd.LL)
+    dataTmp['recovered2AddBIC'] = np.array(data2AlphaAdd.BIC)
     dataTmp.ID = dataTmp.ID + i*75
     dataOut = pd.concat([dataOut, dataTmp])
     
