@@ -78,38 +78,37 @@ def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None
   
   numSubjects = len(IDs)
   
-  if utility_function == multiplicative_utility:
   
-    fitData1AlphaMul = pd.DataFrame(np.zeros((numSubjects, 5)),
-                                columns = ["ID",
-                                           "alpha",
-                                           "beta",
-                                           "LL",
-                                           "BIC"])
+  fitData1AlphaMul = pd.DataFrame(np.zeros((numSubjects, 5)),
+                              columns = ["ID",
+                                          "alpha",
+                                          "beta",
+                                          "LL",
+                                          "BIC"])
 
-    fitData2AlphaMul = pd.DataFrame(np.zeros((numSubjects, 6)),
-                                columns = ["ID",
-                                           "alphaStable",
-                                           "alphaVolatile",
-                                           "beta",
-                                           "LL",
-                                           "BIC"])
-    
-    fitData1AlphaAdd = pd.DataFrame(np.zeros((numSubjects, 6)),
-                                columns = ["ID",
-                                           "alpha",
-                                           "beta",
-                                           "omega",
-                                           "LL",
-                                           "BIC"])
+  fitData2AlphaMul = pd.DataFrame(np.zeros((numSubjects, 6)),
+                              columns = ["ID",
+                                          "alphaStable",
+                                          "alphaVolatile",
+                                          "beta",
+                                          "LL",
+                                          "BIC"])
+  
+  fitData1AlphaAdd = pd.DataFrame(np.zeros((numSubjects, 6)),
+                              columns = ["ID",
+                                          "alpha",
+                                          "beta",
+                                          "omega",
+                                          "LL",
+                                          "BIC"])
 
-    fitData2AlphaAdd = pd.DataFrame(np.zeros((numSubjects, 7)),
-                                columns = ["ID",
-                                           "alphaStable",
-                                           "alphaVolatile",
-                                           "beta",
-                                           "omega",
-                                           "LL",
+  fitData2AlphaAdd = pd.DataFrame(np.zeros((numSubjects, 7)),
+                              columns = ["ID",
+                                          "alphaStable",
+                                          "alphaVolatile",
+                                          "beta",
+                                          "omega",
+                                          "LL",
                                            "BIC"])
 
 
@@ -312,7 +311,7 @@ def parameter_recovery(
 ):
   dataOut = pd.DataFrame()
   for i in range(nReps):
-    display("fitting iteration " + str(i) + " of " + str(nReps))
+    display("fitting iteration " + str(i+1) + " of " + str(nReps))
     dataTmp = data.copy()
     dataTmp = dataTmp.drop(columns=['LL', 'BIC'])
     dataTmp.beta = rng.permutation(dataTmp.beta)
