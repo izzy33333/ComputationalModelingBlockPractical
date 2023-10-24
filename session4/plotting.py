@@ -315,6 +315,7 @@ def plot_recovered_parameters(recoveryData):
                       subplot_titles=("alpha stable","alpha volatile","omega","beta"))
           # Add line traces
           fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=1)
+          
           fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
           fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.05], mode='lines', line=dict(color='black', width=1)), row=1, col=3)
           fig.add_trace(go.Scatter(x=[0, max(recoveryData.beta)+0.05], y=[0, max(recoveryData.beta)+0.05], mode='lines', line=dict(color='black', width=1)), row=1, col=4)
@@ -324,7 +325,7 @@ def plot_recovered_parameters(recoveryData):
           model.fit(recoveryData[["alphaStable"]], recoveryData[["recovered2AddAlphaS"]]) 
           x_range = np.linspace(0, 1, 100)
           y_range = model.predict(x_range.reshape(-1, 1))
-          fig.add_traces(go.Scatter(x=x_range, y=y_range, mode='lines', line=dict(color='red', width=2)), row=1, col=1)
+          fig.add_trace(go.Scatter(x=x_range, y=y_range, mode='lines', line=dict(color='red', width=2)), row=1, col=1)
           
           # Add scatter traces
           fig.add_trace(go.Scatter(
