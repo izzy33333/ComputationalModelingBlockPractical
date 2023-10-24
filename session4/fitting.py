@@ -10,6 +10,9 @@ from scipy.optimize import minimize
 # import the logistic function
 from scipy.stats import logistic
 
+# we are using the chi2 distribution for some statistical tests
+from scipy.stats import chi2
+
 from loading import *
 
 def multiplicative_utility(mag, prob):
