@@ -141,8 +141,8 @@ def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None
         
     # create functions to be minimized
     def min_fun(x):
-      LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[1]), utility_function = utility_function)
-      LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[0]), logistic.cdf(x[1]), utility_function = utility_function)
+      LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[1]), utility_function = multiplicative_utility)
+      LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[0]), logistic.cdf(x[1]), utility_function = multiplicative_utility)
       return - (LL1 + LL2)
 
     # fit the data of this participant
@@ -156,8 +156,8 @@ def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None
       
     # create functions to be minimized
     def min_fun(x):
-      LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[1]), logistic.cdf(x[2]), utility_function = utility_function)
-      LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[0]), logistic.cdf(x[1]), logistic.cdf(x[2]), utility_function = utility_function)
+      LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[1]), logistic.cdf(x[2]), utility_function = additive_utility)
+      LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[0]), logistic.cdf(x[1]), logistic.cdf(x[2]), utility_function = additive_utility)
       return - (LL1 + LL2)
 
     # fit the data of this participant
@@ -172,8 +172,8 @@ def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None
 
     # create functions to be minimized
     def min_fun(x):
-      LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[2]), utility_function = utility_function)
-      LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[1]), logistic.cdf(x[2]), utility_function = utility_function)
+      LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[2]), utility_function = multiplicative_utility)
+      LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[1]), logistic.cdf(x[2]), utility_function = multiplicative_utility)
       return - (LL1 + LL2)
 
     # fit the data of this participant
@@ -194,8 +194,8 @@ def fit_participant_data(utility_function, IDs, simulate = False, alpha_S = None
       
     # create functions to be minimized
     def min_fun(x):
-      LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[2]), logistic.cdf(x[3]), utility_function = utility_function)
-      LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[1]), logistic.cdf(x[2]), logistic.cdf(x[3]), utility_function = utility_function)
+      LL1 = loglikelihood_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   choice1[0:80],   logistic.cdf(x[0]), logistic.cdf(x[2]), logistic.cdf(x[3]), utility_function = additive_utility)
+      LL2 = loglikelihood_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], choice1[80:160], logistic.cdf(x[1]), logistic.cdf(x[2]), logistic.cdf(x[3]), utility_function = additive_utility)
       return - (LL1 + LL2)
 
     # fit the data of this participant
