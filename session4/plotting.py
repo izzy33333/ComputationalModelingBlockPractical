@@ -322,7 +322,7 @@ def plot_recovered_parameters(recoveryData):
 
           # Add trendlines
           model = LinearRegression()
-          model.fit(recoveryData[["alphaStable"]], recoveryData[["recovered2AddAlphaS"]]) 
+          model.fit(recoveryData[["alphaStable"]].values.reshape(-1,1), recoveryData[["recovered2AddAlphaS"]]) 
           x_range = np.linspace(0, 1, 100)
           y_range = model.predict(x_range.reshape(-1, 1))
           fig.add_trace(go.Scatter(x=x_range, y=y_range, mode='lines', line=dict(color='red', width=2)), row=1, col=1)
@@ -332,7 +332,7 @@ def plot_recovered_parameters(recoveryData):
                             x=recoveryData["alphaStable"],
                             y=recoveryData["recovered2AddAlphaS"],
                             mode='markers',
-                            marker=dict(color='rgba(0, 0, 255, 0.3)'),
+                            marker=dict(color='rgba(0, 0, 255, 0.1)'),
                             hovertemplate = 'Simulated beta: %{customdata[0]}<br>Recovered beta: %{customdata[1]}<br>Simulated alpha volatile: %{customdata[2]}<br>Recovered alpha volatile: %{customdata[3]}<br>Simulated omega: %{customdata[4]}<br>Recovered omega: %{customdata[5]}<extra></extra>',
                             customdata = np.stack((round(recoveryData["beta"],3), round(recoveryData["recovered2AddBeta"],3), round(recoveryData["alphaVolatile"],3), round(recoveryData["recovered2AddAlphaV"],3), round(recoveryData["omega"],3), round(recoveryData["recovered2AddOmega"],3)), axis=-1),
                             ),
@@ -342,7 +342,7 @@ def plot_recovered_parameters(recoveryData):
                             x=recoveryData["alphaVolatile"],
                             y=recoveryData["recovered2AddAlphaV"],
                             mode='markers',
-                            marker=dict(color='rgba(0, 0, 255, 0.3)'),
+                            marker=dict(color='rgba(0, 0, 255, 0.1)'),
                             hovertemplate = 'Simulated beta: %{customdata[0]}<br>Recovered beta: %{customdata[1]}<br>Simulated alpha stable: %{customdata[2]}<br>Recovered alpha stable: %{customdata[3]}<br>Simulated omega: %{customdata[4]}<br>Recovered omega: %{customdata[5]}<extra></extra>',
                             customdata = np.stack((round(recoveryData["beta"],3), round(recoveryData["recovered2AddBeta"],3), round(recoveryData["alphaStable"],3), round(recoveryData["recovered2AddAlphaS"],3), round(recoveryData["omega"],3), round(recoveryData["recovered2AddOmega"],3)), axis=-1),
                             ),
@@ -352,7 +352,7 @@ def plot_recovered_parameters(recoveryData):
                             x=recoveryData["omega"],
                             y=recoveryData["recovered2AddOmega"],
                             mode='markers',
-                            marker=dict(color='rgba(0, 0, 255, 0.3)'),
+                            marker=dict(color='rgba(0, 0, 255, 0.1)'),
                             hovertemplate = 'Simulated beta: %{customdata[0]}<br>Recovered beta: %{customdata[1]}<br>Simulated alpha stable: %{customdata[2]}<br>Recovered alpha stable: %{customdata[3]}<br>Simulated alpha volatile: %{customdata[4]}<br>Recovered alpha volatile: %{customdata[5]}<extra></extra>',
                             customdata = np.stack((round(recoveryData["beta"],3), round(recoveryData["recovered2AddBeta"],3), round(recoveryData["alphaStable"],3), round(recoveryData["recovered2AddAlphaS"],3), round(recoveryData["alphaVolatile"],3), round(recoveryData["recovered2AddAlphaV"],3)), axis=-1),
                             ),
@@ -362,7 +362,7 @@ def plot_recovered_parameters(recoveryData):
                             x=recoveryData["beta"],
                             y=recoveryData["recovered2AddBeta"],
                             mode='markers',
-                            marker=dict(color='rgba(0, 0, 255, 0.3)'),
+                            marker=dict(color='rgba(0, 0, 255, 0.1)'),
                             hovertemplate = 'Simulated alpha stable: %{customdata[0]}<br>Recovered alpha stable: %{customdata[1]}<br>Simulated alpha volatile: %{customdata[2]}<br>Recovered alpha volatile: %{customdata[3]}<br>Simulated omega: %{customdata[4]}<br>Recovered omega: %{customdata[5]}<extra></extra>',
                             customdata = np.stack((round(recoveryData["alphaStable"],3), round(recoveryData["recovered2AddAlphaS"],3), round(recoveryData["alphaVolatile"],3), round(recoveryData["recovered2AddAlphaV"],3), round(recoveryData["omega"],3), round(recoveryData["recovered2AddOmega"],3)), axis=-1),
                             ),
