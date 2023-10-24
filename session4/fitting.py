@@ -388,8 +388,7 @@ def parameter_recovery(
     
   return dataOut
 
-def recov_chi2_test(recovData, degrees_of_freedom = 75):
-  nReps = int((max(recov2AlphaAdd.ID)+1)/degrees_of_freedom)
+def recov_chi2_test(recovData, degrees_of_freedom = 75, nReps = 100):
   p_values_mul = np.zeros(nReps)
   p_values_add = np.zeros(nReps)
   for i in range(nReps):
