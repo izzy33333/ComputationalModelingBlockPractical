@@ -387,3 +387,14 @@ def parameter_recovery(
     dataOut = pd.concat([dataOut, dataTmp])
     
   return dataOut
+
+def recov_chi2_test(recovData, degrees_of_freedom = 75):
+  nReps = int((max(recov2AlphaAdd.ID)+1)/degrees_of_freedom)
+  p_values_mul = np.zeros(nReps)
+  p_values_add = np.zeros(nReps)
+  for i in range(nReps):
+    lambda_LR = 2*sum(recovData['recovered2MulLL'][degrees_of_freedom*i:degrees_of_freedom+degrees_of_freedom*i] - recovData['recovered1MulLL'][degrees_of_freedom*i:degrees_of_freedom+degrees_of_freedom*i] )
+    p_values_mul[i] = chi2.sf(lambda_LR, degrees_of_freedom)
+    lambda_LR = 2*sum(recovData['recovered2AddLL'][degrees_of_freedom*i:degrees_of_freedom+degrees_of_freedom*i] - recovData['recovered1AddLL'][degrees_of_freedom*i:degrees_of_freedom+degrees_of_freedom*i] )
+    p_values_add[i] = chi2.sf(lambda_LR, degrees_of_freedom)
+  return p_values_mul, p_values_add

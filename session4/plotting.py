@@ -562,3 +562,19 @@ def plot_recovered_parameters(recoveryData):
 
   # Show the figure
   fig.show()
+  
+def visalise_LR_recovery(recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov2AlphaAdd, p = 0.05, degrees_of_freedom = 75):
+  models=['multiplicative utility', 'additive utility']
+  p_recov1AlphaMul, _ = recov_chi2_test(recov1AlphaMul, degrees_of_freedom = degrees_of_freedom)
+  p_recov2AlphaMul, _ = recov_chi2_test(recov2AlphaMul, degrees_of_freedom = degrees_of_freedom)
+  _, p_recov1AlphaAdd = recov_chi2_test(recov1AlphaAdd, degrees_of_freedom = degrees_of_freedom)
+  _, p_recov2AlphaAdd = recov_chi2_test(recov2AlphaAdd, degrees_of_freedom = degrees_of_freedom)
+  nReps = int((max(recov2AlphaAdd.ID)+1)/degrees_of_freedom)
+
+  fig = go.Figure(data=[
+      go.Bar(name='1 alpha', x=models, y=[sum(p_recov1AlphaMul<0.05)/nReps, sum(p_recov1AlphaAdd<p)/nReps]),
+      go.Bar(name='2 alphas', x=models, y=[sum(p_recov2AlphaMul<0.05)/nReps, sum(p_recov2AlphaAdd<p)/nReps])
+  ])
+
+  fig.update_layout(barmode='group', title = 'significant LR tests at p < ' + str(p), xaxis_title = 'simulated with', yaxis_title = 'fraction significant LR tests')
+  fig.show()
