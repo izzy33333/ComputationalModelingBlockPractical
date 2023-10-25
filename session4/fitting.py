@@ -13,6 +13,9 @@ from scipy.stats import logistic
 # we are using the chi2 distribution for some statistical tests
 from scipy.stats import chi2
 
+# this function allows us to perform one sample t-tests
+from scipy.stats import ttest_1samp
+
 from loading import *
 
 def multiplicative_utility(mag, prob):
