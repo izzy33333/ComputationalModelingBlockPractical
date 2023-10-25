@@ -577,7 +577,7 @@ def visualise_LR_recovery(recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov2
       go.Bar(name='2 alphas', x=models, y=[sum(p_recov2AlphaMul<p)/nReps, sum(p_recov2AlphaAdd<p)/nReps])
   ])
 
-  fig.update_layout(barmode='group', title = 'significant LR tests at p < ' + str(p), xaxis_title = 'simulated with', yaxis_title = 'fraction significant LR tests')
+  fig.update_layout(barmode='group', title = 'significant LR tests at p < ' + str(p), xaxis_title = 'simulated with', yaxis_title = 'proportion significant LR tests')
   fig.show()
   
 def visualise_BIC_recovery(recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov2AlphaAdd, num_simulated_participants = 75, nReps = 100):
@@ -595,7 +595,7 @@ def visualise_BIC_recovery(recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov
                     colorbar_thickness=20,
                     colorbar_ticklen=3)
 
-  layout = go.Layout(title_text='Frequency of BIC comparisons that identify a model', 
+  layout = go.Layout(title_text='Proportion of BIC comparisons that identify a model', 
                     width=600, height=600,
                     xaxis_showgrid=False,
                     yaxis_showgrid=False,
@@ -609,3 +609,20 @@ def visualise_BIC_recovery(recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov
   ) 
   fig.update_xaxes(tickangle=-45)       
   fig.show() 
+  
+def visualise_t_test_recovery(recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov2AlphaAdd, p = 0.05, num_simulated_participants = 75):
+  models=['multiplicative utility', 'additive utility']
+  nReps = int((max(recov2AlphaAdd.ID)+1)/degrees_of_freedom)
+  p_recov1AlphaMul, _ = recov_t_test(recov1AlphaMul, num_simulated_participants = num_simulated_participants, nReps = nReps)
+  p_recov2AlphaMul, _ = recov_t_test(recov2AlphaMul, num_simulated_participants = num_simulated_participants, nReps = nReps)
+  _, p_recov1AlphaAdd = recov_t_test(recov1AlphaAdd, num_simulated_participants = num_simulated_participants, nReps = nReps)
+  _, p_recov2AlphaAdd = recov_t_test(recov2AlphaAdd, num_simulated_participants = num_simulated_participants, nReps = nReps)
+  
+
+  fig = go.Figure(data=[
+      go.Bar(name='1 alpha', x=models, y=[sum(p_recov1AlphaMul<p)/nReps, sum(p_recov1AlphaAdd<p)/nReps]),
+      go.Bar(name='2 alphas', x=models, y=[sum(p_recov2AlphaMul<p)/nReps, sum(p_recov2AlphaAdd<p)/nReps])
+  ])
+
+  fig.update_layout(barmode='group', title = 'significant t tests at p < ' + str(p), xaxis_title = 'simulated with', yaxis_title = 'proportion significant t tests')
+  fig.show()

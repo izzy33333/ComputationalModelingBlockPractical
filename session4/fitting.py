@@ -406,3 +406,13 @@ def recov_BICs(recovData, num_simulated_participants = 75, nReps = 100):
   for i in range(nReps):
     winning_BIC[np.argmin([sum(recovData['recovered1MulBIC'][num_simulated_participants*i:num_simulated_participants+num_simulated_participants*i]),sum(recovData['recovered2MulBIC'][num_simulated_participants*i:num_simulated_participants+num_simulated_participants*i]),sum(recovData['recovered1AddBIC'][num_simulated_participants*i:num_simulated_participants+num_simulated_participants*i]),sum(recovData['recovered2AddBIC'][num_simulated_participants*i:num_simulated_participants+num_simulated_participants*i])])] += 1
   return winning_BIC
+
+def recov_t_test(recovData, num_simulated_participants = 75, nReps = 100):
+  p_values_mul = np.zeros(nReps)
+  p_values_add = np.zeros(nReps)
+  for i in range(nReps):
+    res = ttest_1samp(recovData['recovered2MulAlphaV'][num_simulated_participants*i:num_simulated_participants+num_simulated_participants*i] - recovData['recovered2MulAlphaS'][num_simulated_participants*i:num_simulated_participants+num_simulated_participants*i], 0, alternative = "greater")
+    p_values_mul[i] = res.pvalue
+    res = ttest_1samp(recovData['recovered2AddAlphaV'][num_simulated_participants*i:num_simulated_participants+num_simulated_participants*i] - recovData['recovered2AddAlphaS'][num_simulated_participants*i:num_simulated_participants+num_simulated_participants*i], 0, alternative = "greater")
+    p_values_add[i] = res.pvalue
+  return p_values_mul, p_values_add
