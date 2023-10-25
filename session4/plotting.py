@@ -612,7 +612,7 @@ def visualise_BIC_recovery(recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov
   
 def visualise_t_test_recovery(recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov2AlphaAdd, p = 0.05, num_simulated_participants = 75):
   models=['multiplicative utility', 'additive utility']
-  nReps = int((max(recov2AlphaAdd.ID)+1)/degrees_of_freedom)
+  nReps = int((max(recov2AlphaAdd.ID)+1)/num_simulated_participants)
   p_recov1AlphaMul, _ = recov_t_test(recov1AlphaMul, num_simulated_participants = num_simulated_participants, nReps = nReps)
   p_recov2AlphaMul, _ = recov_t_test(recov2AlphaMul, num_simulated_participants = num_simulated_participants, nReps = nReps)
   _, p_recov1AlphaAdd = recov_t_test(recov1AlphaAdd, num_simulated_participants = num_simulated_participants, nReps = nReps)
