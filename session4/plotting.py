@@ -314,10 +314,10 @@ def plot_recovered_parameters(recoveryData):
           fig = make_subplots(rows=1, cols=4,
                       subplot_titles=("alpha stable","alpha volatile","omega","beta"))
           # Add line traces
-          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=1)      
-          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
-          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=3)
-          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=4)
+          fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=1)      
+          fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
+          fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=3)
+          fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=4)
 
           # Add trendlines
           model = LinearRegression()
@@ -394,9 +394,9 @@ def plot_recovered_parameters(recoveryData):
                       subplot_titles=("alpha stable","alpha volatile","beta"))
           
           # Add line traces
-          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=1)
-          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
-          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=3)
+          fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=1)
+          fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
+          fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=3)
           
            # Add trendlines
           model = LinearRegression()
@@ -458,9 +458,9 @@ def plot_recovered_parameters(recoveryData):
                       subplot_titles=("alpha","omega","beta"))
           
           # Add line traces
-          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1.], mode='lines', line=dict(color='black', width=1)), row=1, col=1)
-          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
-          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=3)
+          fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=1)
+          fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
+          fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=3)
           
           # Add trendlines
           model = LinearRegression()
@@ -520,8 +520,8 @@ def plot_recovered_parameters(recoveryData):
                       subplot_titles=("alpha","beta"))
           
           # Add line traces
-          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=1)
-          fig.add_trace(go.Scatter(x=[0, 1.05], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
+          fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=1)
+          fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', line=dict(color='black', width=1)), row=1, col=2)
 
           # Add trendlines
           model = LinearRegression()
