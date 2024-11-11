@@ -192,10 +192,10 @@ def run_paramterer_recovery(
             recovered_parameters = minimize(min_fun, [0, -1.5], method = method)
 
             # save the data of the current iteration
-            recoveryData.simulatedAlpha[counter] = simulatedAlphaRange[alpha]
-            recoveryData.simulatedBeta[counter]  = simulatedBetaRange[beta]
-            recoveryData.recoveredAlpha[counter] = logistic.cdf(recovered_parameters.x[0])
-            recoveryData.recoveredBeta[counter]  = np.exp(recovered_parameters.x[1])
+            recoveryData.loc[counter,"simulatedAlpha"] = simulatedAlphaRange[alpha]
+            recoveryData.loc[counter,"simulatedBeta"]  = simulatedBetaRange[beta]
+            recoveryData.loc[counter,"recoveredAlpha"] = logistic.cdf(recovered_parameters.x[0])
+            recoveryData.loc[counter,"recoveredBeta"]  = np.exp(recovered_parameters.x[1])
 
             # increase the iteration counter
             counter += 1
@@ -262,8 +262,8 @@ def run_paramterer_recovery_with_difference(
         # fit the data of this simulated participant
         pars = minimize(min_fun, [0, 0, -1.5], method = method)
 
-        fittedParameters["alpha stable"][p] = logistic.cdf(pars.x[0])
-        fittedParameters["alpha volatile"][p] = logistic.cdf(pars.x[1])
-        fittedParameters["inverse temperature"][p] = np.exp(pars.x[2])
+        fittedParameters.loc[p,"alpha stable"] = logistic.cdf(pars.x[0])
+        fittedParameters.loc[p,"alpha volatile"] = logistic.cdf(pars.x[1])
+        fittedParameters.loc[p,"inverse temperature"] = np.exp(pars.x[2])
 
     return fittedParameters

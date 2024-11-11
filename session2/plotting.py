@@ -17,7 +17,7 @@ pio.templates.default = "none"
 import ipywidgets as widgets
 
 # import some custom fitting functions we wrote
-from fitting import *
+from session2 import fitting
 
 def plot_schedule(
     opt1Rewarded,
@@ -436,7 +436,7 @@ def plot_likelihood_landscapes(
                             magOpt1, 
                             magOpt2, 
                             choice1,
-                            loglikelihood_RL_model = loglikelihood_RL_model
+                            loglikelihood_RL_model = fitting.loglikelihood_RL_model
                             ):
   '''
   Plots the likelihood landscape for alpha and beta using plotly.
@@ -461,7 +461,7 @@ def plot_likelihood_landscapes(
   # loop through alpha and beta and get the corresponding log likelihoods
   for a in range(len(alphaRange)):
     for b in range(len(betaRange)):
-      LLMatrix[a,b] = loglikelihood_RL_model(opt1Rewarded, magOpt1, magOpt2, choice1, alphaRange[a], betaRange[b])
+      LLMatrix[a,b] = fitting.loglikelihood_RL_model(opt1Rewarded, magOpt1, magOpt2, choice1, alphaRange[a], betaRange[b])
 
   # also calculate the normalised likelihood
   LMatrix = np.exp(LLMatrix)/sum(sum(np.exp(LLMatrix)))
@@ -495,7 +495,7 @@ def plot_loglikelihood_trajectory(
                             magOpt1, 
                             magOpt2, 
                             choice1,
-                            loglikelihood_RL_model = loglikelihood_RL_model
+                            loglikelihood_RL_model = fitting.loglikelihood_RL_model
                             ):
   '''
   Plots the likelihood landscape for alpha and beta using plotly, and a walk on that landscape.
@@ -520,10 +520,10 @@ def plot_loglikelihood_trajectory(
   # loop through alpha and beta and get the corresponding log likelihoods
   for a in range(len(alphaRange)):
     for b in range(len(betaRange)):
-      LLMatrix[a,b] = loglikelihood_RL_model(opt1Rewarded, magOpt1, magOpt2, choice1, alphaRange[a], betaRange[b])
+      LLMatrix[a,b] = fitting.loglikelihood_RL_model(opt1Rewarded, magOpt1, magOpt2, choice1, alphaRange[a], betaRange[b])
 
 
-  alphas, betas, loglikelihoods = loglikelihood_trajectory(opt1Rewarded, magOpt1, magOpt2, choice1)
+  alphas, betas, loglikelihoods = fitting.loglikelihood_trajectory(opt1Rewarded, magOpt1, magOpt2, choice1)
 
   fig = go.Figure(go.Surface(z = LLMatrix,
                           y = alphaRange,
