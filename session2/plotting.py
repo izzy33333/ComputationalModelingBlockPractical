@@ -1,5 +1,6 @@
 # numpy is a libarary used to do all kinds of mathematical operations
 import numpy as np
+import jax.numpy as jnp
 
 # pandas allows us to organise data as tables (called "dataframes")
 import pandas as pd
@@ -9,6 +10,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import plotly.io as pio
 import plotly.express as px
+from tqdm.auto import tqdm
 
 # set the style of the plotly figures
 pio.templates.default = "none"
@@ -436,7 +438,6 @@ def plot_likelihood_landscapes(
                             magOpt1, 
                             magOpt2, 
                             choice1,
-                            loglikelihood_RL_model = fitting.loglikelihood_RL_model
                             ):
   '''
   Plots the likelihood landscape for alpha and beta using plotly.
@@ -452,16 +453,18 @@ def plot_likelihood_landscapes(
   '''
   
   # the values of alpha and beta to plug into the likelihood function
-  alphaRange = np.arange(0.01, 1, 0.02)
-  betaRange  = np.arange(0.01, 1, 0.02)
+  alphaRange = np.arange(0.01, 1, 0.005)
+  betaRange  = np.arange(0.01, 1, 0.005)
 
   # matrix to store the log likelihoods for each value of alpha and beta we try
   LLMatrix = np.zeros((len(alphaRange),len(betaRange)))
 
   # loop through alpha and beta and get the corresponding log likelihoods
-  for a in range(len(alphaRange)):
+  for a in tqdm(range(len(alphaRange))):
     for b in range(len(betaRange)):
-      LLMatrix[a,b] = fitting.loglikelihood_RL_model(opt1Rewarded, magOpt1, magOpt2, choice1, alphaRange[a], betaRange[b])
+      loss = fitting.loss_RL_model(opt1Rewarded, magOpt1, magOpt2, choice1, {'alpha': jnp.array([alphaRange[a]]), 'beta': jnp.array([betaRange[b]])})
+      # average cross entropy loss needs to be negated to get the log likelihood and multiplied by the number of trials
+      LLMatrix[a,b] = -loss*len(opt1Rewarded)
 
   # also calculate the normalised likelihood
   LMatrix = np.exp(LLMatrix)/sum(sum(np.exp(LLMatrix)))
@@ -474,14 +477,14 @@ def plot_likelihood_landscapes(
 
   # this plots the normalised likelihood
   fig.add_trace(go.Surface(z = LMatrix,
-                          y = alphaRange,
-                          x = betaRange,
-                          colorbar_x = -0.07), 1, 1)
+                           y = alphaRange,
+                           x = betaRange,
+                           colorbar_x = -0.07), 1, 1)
 
   # this plots the log likelihood
   fig.add_trace(go.Surface(z = LLMatrix,
-                          y = alphaRange,
-                          x = betaRange), 1, 2)
+                           y = alphaRange,
+                           x = betaRange), 1, 2)
 
   fig.update_scenes(yaxis_title='alpha',
                     xaxis_title='beta',
@@ -489,64 +492,6 @@ def plot_likelihood_landscapes(
 
   fig.show()
 
-
-def plot_loglikelihood_trajectory(
-                            opt1Rewarded, 
-                            magOpt1, 
-                            magOpt2, 
-                            choice1,
-                            loglikelihood_RL_model = fitting.loglikelihood_RL_model
-                            ):
-  '''
-  Plots the likelihood landscape for alpha and beta using plotly, and a walk on that landscape.
-
-    Parameters:
-        opt1rewarded(int array): 1 if option 1 is rewarded on a trial, 0 if
-          option 2 is rewarded on a trial.
-        magOpt1(int array): The reward magnitude of option 1.
-        magOpt2(int array): The reward magnitude of option 1.
-        choice1(int array): whether option 1 (1) or option 2 (2) was chosen on
-          each. 
-        loglikelihood_RL_model(function): The loglikelihood function to use.
-  '''
-
-  # the values of alpha and beta to plug into the likelihood function
-  alphaRange = np.arange(0.01, 1, 0.02)
-  betaRange  = np.arange(0.01, 1, 0.02)
-
-  # matrix to store the log likelihoods for each value of alpha and beta we try
-  LLMatrix = np.zeros((len(alphaRange),len(betaRange)))
-
-  # loop through alpha and beta and get the corresponding log likelihoods
-  for a in range(len(alphaRange)):
-    for b in range(len(betaRange)):
-      LLMatrix[a,b] = fitting.loglikelihood_RL_model(opt1Rewarded, magOpt1, magOpt2, choice1, alphaRange[a], betaRange[b])
-
-
-  alphas, betas, loglikelihoods = fitting.loglikelihood_trajectory(opt1Rewarded, magOpt1, magOpt2, choice1)
-
-  fig = go.Figure(go.Surface(z = LLMatrix,
-                          y = alphaRange,
-                          x = betaRange))
-
-  fig.add_trace(go.Scatter3d(
-      x=betas, y=alphas, z=loglikelihoods+5,
-      marker=dict(
-          size=4,
-          color=loglikelihoods,
-          colorscale='Viridis',
-      ),
-      line=dict(
-          color='darkblue',
-          width=5
-      )
-  ))
-
-  fig.update_scenes(yaxis_title='alpha',
-                    xaxis_title='beta',
-                    zaxis_title='log likelihood')
-
-  fig.show()
 
 
 def plot_recovered_parameters(recoveryData):
