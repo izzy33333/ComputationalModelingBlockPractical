@@ -21,17 +21,23 @@ import ipywidgets as widgets
 # import some custom fitting functions we wrote
 from session2 import fitting
 
+# Add type hint imports
+from typing import Optional, Callable, Union, Dict, Any
+import numpy.typing as npt
+from plotly.graph_objs._figure import Figure
+from ipywidgets import VBox
+
 def plot_schedule(
-    opt1Rewarded,
-    trueProbability,
-    magOpt1     = None,
-    magOpt2     = None,
-    probOpt1    = None,
-    choiceProb1 = None,
-    choice1     = None,
-    utility1    = None,
-    utility2    = None,
-    ):
+    opt1Rewarded:    npt.NDArray,
+    trueProbability: npt.NDArray,
+    magOpt1:         Optional[npt.NDArray] = None,
+    magOpt2:         Optional[npt.NDArray] = None,
+    probOpt1:        Optional[npt.NDArray] = None,
+    choiceProb1:     Optional[npt.NDArray] = None,
+    choice1:         Optional[npt.NDArray] = None,
+    utility1:        Optional[npt.NDArray] = None,
+    utility2:        Optional[npt.NDArray] = None,
+    ) -> Figure:
   '''
   Plots the experimental schedule and the RL model estimate using plotly.
 
@@ -45,8 +51,8 @@ def plot_schedule(
         magOpt2(int array): The reward magnitude of option 1. Defaults to None,
           which excludes it from the plot.
         probOpt1(float array): how likely option 1 is rewarded on each trial
-          according to the RL model. Defaults to None, which excludes it from
-          the plot.
+          according to the RL model. Defaults to None, which excludes it
+          from the plot.
         choiceProb1(float array): the probability of choosing option 1 on each
           trial according to the RL model. Defaults to None, which excludes it
           from the plot.
@@ -181,7 +187,11 @@ def plot_schedule(
 
   return fig
 
-def visualise_utility_function(utility_function, omega = False, nSamples = 100):
+def visualise_utility_function(
+    utility_function: Callable,
+    omega:            bool = False,
+    nSamples:         int = 100
+    ) -> None:
   '''
   Visualises a utility function using plotly.
 
@@ -207,11 +217,11 @@ def visualise_utility_function(utility_function, omega = False, nSamples = 100):
 
   # function to fill in the utility matrix
   def compute_utilityMatrix(
-      utility_function = utility_function, 
-      show_omega = omega, 
-      nSamples = nSamples, 
-      omega = omegaSlider.value
-      ):
+      utility_function: Callable = utility_function,
+      show_omega:       bool = omega,
+      nSamples:         int = nSamples,
+      omega:            float = omegaSlider.value
+      ) -> npt.NDArray:
 
     # empty matrix to fill in with utility values
     utilityMatrix = np.zeros((nSamples,nSamples))
@@ -255,7 +265,7 @@ def visualise_utility_function(utility_function, omega = False, nSamples = 100):
     fig = go.FigureWidget(fig)
 
     # function that triggers when the omega value changes
-    def change_omega(change):
+    def change_omega(change: Dict[str, Any]) -> None:
       # calculate the utility matrix for the new omega value
       utilityMatrix = compute_utilityMatrix(omega = omegaSlider.value)
       # update the figure
@@ -272,7 +282,7 @@ def visualise_utility_function(utility_function, omega = False, nSamples = 100):
      display(fig)
 
  
-def visualise_softmax(softmax):
+def visualise_softmax(softmax: Callable) -> None:
   '''
   Visualises a softmax function using plotly.
   
@@ -309,7 +319,7 @@ def visualise_softmax(softmax):
   fig.update_yaxes(range=[0, 1])
 
   # function that triggers when the beta value changes
-  def change_beta(change):
+  def change_beta(change: Dict[str, Any]) -> None:
     # get the current value of beta
     beta = betaSlider.value
     # calculate the corresponding utilities
@@ -325,14 +335,14 @@ def visualise_softmax(softmax):
   display(widgets.VBox([betaSlider, fig]))
 
 def plot_interactive_RL_model(
-                          simulate_RL_model,
-                          utility_function,
-                          opt1Rewarded, 
-                          magOpt1, 
-                          magOpt2, 
-                          trueProbability,
-                          omega = False
-                          ):
+    simulate_RL_model: Callable,
+    utility_function:  Callable,
+    opt1Rewarded:      npt.NDArray,
+    magOpt1:           npt.NDArray,
+    magOpt2:           npt.NDArray,
+    trueProbability:   npt.NDArray,
+    omega:             bool = False
+    ) -> None:
   '''
   Plots the experimental schedule and the RL model estimate using plotly.
 
@@ -406,7 +416,7 @@ def plot_interactive_RL_model(
                   height=500)
   
   # function to run if alpha or beta have changed
-  def change_model(change):
+  def change_model(change: Dict[str, Any]) -> None:
     # rerun the RL model
     if omega:
       probOpt1, choiceProb1 = simulate_RL_model(opt1Rewarded, magOpt1, magOpt2, alphaSlider.value, betaSlider.value, omegaSlider.value, utility_function = utility_function)
@@ -434,11 +444,11 @@ def plot_interactive_RL_model(
   display(widgets.VBox([sliders, fig]))
 
 def plot_likelihood_landscapes(
-                            opt1Rewarded, 
-                            magOpt1, 
-                            magOpt2, 
-                            choice1,
-                            ):
+    opt1Rewarded: npt.NDArray,
+    magOpt1:      npt.NDArray,
+    magOpt2:      npt.NDArray,
+    choice1:      npt.NDArray,
+    ) -> None:
   '''
   Plots the likelihood landscape for alpha and beta using plotly.
 
@@ -451,6 +461,12 @@ def plot_likelihood_landscapes(
           each.
         loglikelihood_RL_model(function): The loglikelihood function to use.
   '''
+
+  # ensure the inptus are jnp arrays
+  opt1Rewarded = jnp.array(opt1Rewarded)
+  magOpt1 = jnp.array(magOpt1)
+  magOpt2 = jnp.array(magOpt2)
+  choice1 = jnp.array(choice1)
   
   # the values of alpha and beta to plug into the likelihood function
   alphaRange = np.arange(0.01, 1, 0.005)
@@ -462,7 +478,7 @@ def plot_likelihood_landscapes(
   # loop through alpha and beta and get the corresponding log likelihoods
   for a in tqdm(range(len(alphaRange))):
     for b in range(len(betaRange)):
-      loss = fitting.loss_RL_model(opt1Rewarded, magOpt1, magOpt2, choice1, {'alpha': jnp.array([alphaRange[a]]), 'beta': jnp.array([betaRange[b]])})
+      loss = fitting.loss_RL_model((opt1Rewarded, magOpt1, magOpt2, choice1), {'alpha': jnp.array([alphaRange[a]]), 'beta': jnp.array([betaRange[b]])})
       # average cross entropy loss needs to be negated to get the log likelihood and multiplied by the number of trials
       LLMatrix[a,b] = -loss*len(opt1Rewarded)
 
@@ -494,7 +510,7 @@ def plot_likelihood_landscapes(
 
 
 
-def plot_recovered_parameters(recoveryData):
+def plot_recovered_parameters(recoveryData: pd.DataFrame) -> None:
   '''
   Plots the simulated against the recoverd parameters
 
@@ -542,7 +558,11 @@ def plot_recovered_parameters(recoveryData):
   # Show the figure
   fig.show()
 
-def visualise_alpha_difference(stableAlphas, volatileAlphas, title):
+def visualise_alpha_difference(
+    stableAlphas:   npt.NDArray,
+    volatileAlphas: npt.NDArray,
+    title:          str
+    ) -> None:
   fig = px.histogram(pd.DataFrame({"stable block": stableAlphas,
                                   "volatile block": volatileAlphas}).melt(),
                                   color="variable", x="value", marginal="box", barmode="overlay")

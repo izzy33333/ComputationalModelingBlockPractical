@@ -10,21 +10,28 @@ from scipy.optimize import minimize
 # import the logistic function
 from scipy.stats import logistic
 
+# import jax (for fast vectorised operations) and optax (for optimizers)
 import jax
 import jax.numpy as jnp
 import optax
 import optax.tree_utils as otu
 from functools import partial
 
-@jax.jit
-def utility_fun(mag, prob):
+
+from typing import Tuple, Dict, Any, Callable, Optional, Union
+import numpy.typing as npt
+from jax._src.prng import PRNGKeyArray
+
+# define the utility function
+@jax.jit # this is a decorator that tells jax to compile the function
+def utility_fun(mag: jnp.ndarray, prob: jnp.ndarray) -> jnp.ndarray:
   return mag*prob
 
-@partial(jax.jit,static_argnames=['utility_function'])
-def loss_RL_model(data,
-                  params,
-                  startingProb = 0.5,
-                  utility_function = utility_fun):
+@partial(jax.jit, static_argnames=['utility_function']) # this is a decorator that tells jax to compile the function and to use the utility_function as a static argument
+def loss_RL_model(data:             Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray],
+                  params:           Dict[str, jnp.ndarray],
+                  startingProb:     float = 0.5,
+                  utility_function: Callable = utility_fun) -> float:
     
     '''
     Returns the loss of the data given the choices and the model 
@@ -83,7 +90,27 @@ def loss_RL_model(data,
     
     return loss
 
-def run_opt(init_params, fun, opt, max_iter, tol, paramsClip):
+def run_opt(init_params: Dict[str, jnp.ndarray],
+            fun:         Callable,
+            opt:         optax.GradientTransformation = optax.lbfgs(),
+            max_iter:    int = 100,
+            tol:         float = 1e-3,
+            paramsClip:  Dict[str, float] = {'alphaMin': 0, 'alphaMax': 1, 'betaMin': 0, 'betaMax': 1}
+            ) -> Tuple[Dict[str, jnp.ndarray], Any]:
+  '''
+  Runs the optimization process. Based on https://optax.readthedocs.io/en/latest/_collections/examples/lbfgs.html
+
+  Parameters:
+    init_params(dict): the initial parameters for the model
+    fun(function): the loss function to minimize
+    opt(optax optimizer): the optimizer to use
+    max_iter(int): the maximum number of iterations to run
+    tol(float): the tolerance for the optimization
+    paramsClip(dict): the parameters to clip
+
+  Returns:
+    final_params(dict): the final parameters after optimization
+  '''
   value_and_grad_fun = optax.value_and_grad_from_state(fun)
 
   def project_params(params, paramsClip):
@@ -125,7 +152,41 @@ def run_opt(init_params, fun, opt, max_iter, tol, paramsClip):
   return final_params, final_state
 
 @partial(jax.jit,static_argnames=['utility_function', 'opt'])
-def fit_model_same_alpha(data, rng = None, startingProb = 0.5, paramsClip = {'alphaMin': 0, 'alphaMax': 1, 'betaMin': 0, 'betaMax': 1}, utility_function = utility_fun, opt = optax.lbfgs(), max_iter = 100, tol = 1e-3):
+def fit_model_same_alpha(data:            Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray],
+                        rng:              Optional[PRNGKeyArray] = None,
+                        startingProb:     float = 0.5,
+                        paramsClip:       Dict[str, float] = {'alphaMin': 0, 'alphaMax': 1, 'betaMin': 0, 'betaMax': 1},
+                        utility_function: Callable = utility_fun,
+                        opt:              optax.GradientTransformation = optax.lbfgs(),
+                        max_iter:         int = 100,
+                        tol:              float = 1e-3
+                        ) -> Tuple[Dict[str, jnp.ndarray], Any, float]:
+    '''
+    Fits the model with the same learning rate for both blocks
+
+    Parameters:
+        data(tuple): tuple containing the following arrays:
+          opt1rewarded(bool array): True if option 1 is rewarded on a trial, False
+            if option 2 is rewarded on a trial.
+          magOpt1(int array): reward points between 1 and 100 for option 1 on each
+            trial
+          magOpt2(int array): reward points between 1 and 100 for option 2 on each
+            trial
+          choice1(bool array): True if option 1 was chosen on a trial, False if
+            option 2 was chosen on a trial.
+        rng(PRNGKeyArray): the random number generator to use
+        startingProb(float): the starting probability of choosing option 1
+        paramsClip(dict): the parameters to constrain
+        utility_function(function): the utility function to use
+        opt(optax optimizer): the optimizer to use
+        max_iter(int): the maximum number of iterations to run
+        tol(float): the tolerance for the optimization
+
+    Returns:
+        finalParams(dict): the final parameters after optimization
+        finalState(Any): the final state after optimization
+        finalLoss(float): the final loss after optimization
+    '''
     
     if rng is None:
       rng = jax.random.PRNGKey(0)
@@ -144,11 +205,47 @@ def fit_model_same_alpha(data, rng = None, startingProb = 0.5, paramsClip = {'al
     return finalParams, finalState, finalLoss
 
 @partial(jax.jit,static_argnames=['utility_function', 'opt'])
-def fit_model_alpha_difference(data, rng = None, startingProb = 0.5, paramsClip = {'alphaMin': 0, 'alphaMax': 1, 'betaMin': 0, 'betaMax': 1}, utility_function = utility_fun, opt = optax.lbfgs(), max_iter = 100, tol = 1e-3):
+def fit_model_alpha_difference(data:           Tuple[npt.NDArray, ...],
+                             rng:              Optional[PRNGKeyArray] = None,
+                             startingProb:     float = 0.5,
+                             paramsClip:       Dict[str, float] = {'alphaMin': 0, 'alphaMax': 1, 'betaMin': 0, 'betaMax': 1},
+                             utility_function: Callable = utility_fun,
+                             opt:              optax.GradientTransformation = optax.lbfgs(),
+                             max_iter:         int = 100,
+                             tol:              float = 1e-3
+                             ) -> Tuple[Dict[str, jnp.ndarray], Any, float]:
+    '''
+    Fits the model with different learning rates for the stable and volatile blocks
+
+    Parameters:
+        data(tuple): tuple containing the following arrays:
+          opt1rewarded(bool array): True if option 1 is rewarded on a trial, False
+            if option 2 is rewarded on a trial.
+          magOpt1(int array): reward points between 1 and 100 for option 1 on each
+            trial
+          magOpt2(int array): reward points between 1 and 100 for option 2 on each
+            trial
+          choice1(bool array): True if option 1 was chosen on a trial, False if
+            option 2 was chosen on a trial.
+        rng(PRNGKeyArray): the random number generator to use
+        startingProb(float): the starting probability of choosing option 1
+        paramsClip(dict): the parameters to constrain
+        utility_function(function): the utility function to use
+        opt(optax optimizer): the optimizer to use
+        max_iter(int): the maximum number of iterations to run
+        tol(float): the tolerance for the optimization
+
+    Returns:
+        finalParams(dict): the final parameters after optimization
+        finalState(Any): the final state after optimization
+        finalLoss(float): the final loss after optimization
+    '''
+    # split the data into stable and volatile blocks
     opt1RewardedStable, magOpt1Stable, magOpt2Stable, choice1Stable, opt1RewardedVolatile, magOpt1Volatile, magOpt2Volatile, choice1Volatile = data
-    dataStable = (opt1RewardedStable, magOpt1Stable, magOpt2Stable, choice1Stable)
+    dataStable   = (opt1RewardedStable,   magOpt1Stable,   magOpt2Stable,   choice1Stable)
     dataVolatile = (opt1RewardedVolatile, magOpt1Volatile, magOpt2Volatile, choice1Volatile)
 
+    # generate random initial parameters
     if rng is None:
       rng = jax.random.PRNGKey(0)
     rng, alphaStableRng, alphaVolatileRng, betaRng = jax.random.split(rng, 4)
@@ -156,21 +253,40 @@ def fit_model_alpha_difference(data, rng = None, startingProb = 0.5, paramsClip 
     alphaVolatile = jax.random.uniform(alphaVolatileRng, shape=(1,), minval=paramsClip['alphaMin'], maxval=paramsClip['alphaMax'])
     beta          = jax.random.uniform(betaRng,          shape=(1,), minval=paramsClip['betaMin'],  maxval=paramsClip['betaMax'] )
     
+    # initialise the parameters
     initParams = {'alphaStable': alphaStable, 'alphaVolatile': alphaVolatile, 'beta': beta}
     
+    # define the loss function
     def loss_fun(params):
       stableParams   = {'alpha': params['alphaStable'],   'beta': params['beta']}
       volatileParams = {'alpha': params['alphaVolatile'], 'beta': params['beta']}
-      lossStable = loss_RL_model(dataStable, stableParams, startingProb = startingProb, utility_function = utility_function)
+      lossStable   = loss_RL_model(dataStable, stableParams, startingProb = startingProb, utility_function = utility_function)
       lossVolatile = loss_RL_model(dataVolatile, volatileParams, startingProb = startingProb, utility_function = utility_function)
       return lossStable + lossVolatile
     
+    # run the optimization
     finalParams, finalState = run_opt(initParams, loss_fun, opt, max_iter=max_iter, tol=tol, paramsClip=paramsClip)
     finalLoss = loss_fun(finalParams)
     return finalParams, finalState, finalLoss
 
 @partial(jax.jit, static_argnames=['nInits', 'fit_model'])
-def fit_with_multiple_initial_values(data, nInits = 100, fit_model = fit_model_same_alpha):
+def fit_with_multiple_initial_values(data:    Union[Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray],
+                                                    Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray,
+                                                          npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray]],
+                                   nInits:    int = 10,
+                                   fit_model: Callable = fit_model_same_alpha
+                                   ) -> Dict[str, jnp.ndarray]:
+    '''
+    Fits the model with multiple initial values
+
+    Parameters:
+        data(tuple): arrays of data specific to the model
+        nInits(int): the number of initial values to use
+        fit_model(function): the model to fit
+
+    Returns:
+        finalParams(dict): the final parameters after optimization
+    '''
     if fit_model == fit_model_same_alpha:
       opt1Rewarded, magOpt1, magOpt2, choice1 = data
       opt1RewardedStack  = jnp.tile(opt1Rewarded, (nInits, 1))
@@ -194,13 +310,22 @@ def fit_with_multiple_initial_values(data, nInits = 100, fit_model = fit_model_s
     
     fit_model_vectorised = jax.vmap(fit_model)
     
-    
-    
     initial_rngs = jnp.stack([jax.random.PRNGKey(i) for i in range(nInits)], axis=0)
     
     params, _, loss = fit_model_vectorised(data, initial_rngs)
     
+
     def get_params(params, loss):
+        '''
+        Gets the best fitting parameters
+
+        Parameters:
+            params(dict): the final parameters
+            loss(float): the loss of the parameters
+
+        Returns:
+            bestParams(dict): the best fitting parameters
+        '''
         bestFit = jnp.argmin(loss)
         if fit_model == fit_model_same_alpha:
           bestAlpha = params['alpha'][bestFit]
@@ -215,20 +340,36 @@ def fit_with_multiple_initial_values(data, nInits = 100, fit_model = fit_model_s
 
     return get_params(params, loss)
 
-def fit_multiple_participants(data, nInits = 100, fit_model = fit_model_same_alpha):
+@partial(jax.jit, static_argnames=['nInits', 'fit_model'])
+def fit_multiple_participants(data:    Union[Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray],
+                                             Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray,
+                                                   npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray]],
+                            nInits:    int = 10,
+                            fit_model: Callable = fit_model_same_alpha
+                            ) -> Dict[str, jnp.ndarray]:
+    '''
+    Fits the model with multiple participants
 
-  fit_model_vectorised = jax.vmap(partial(fit_with_multiple_initial_values, nInits=nInits, fit_model = fit_model))
-  params = fit_model_vectorised(data)
-  
-  return params
+    Parameters:
+        data(tuple): arrays of data specific to the model
+        nInits(int): the number of initial values to use
+        fit_model(function): the model to fit
+
+    Returns:
+        params(dict): the final parameters after optimization
+    '''
+    fit_model_vectorised = jax.vmap(partial(fit_with_multiple_initial_values, nInits = nInits, fit_model = fit_model))
+    params = fit_model_vectorised(data)
+    return params
 
 def run_paramterer_recovery(
-                        simulatedAlphaRange, 
-                        simulatedBetaRange,
-                        simulate_RL_model,
-                        generate_schedule,
-                        trueProbability,
-                        rng,
+                        simulatedAlphaRange: npt.NDArray, 
+                        simulatedBetaRange:  npt.NDArray,
+                        simulate_RL_model:   Callable,
+                        generate_schedule:   Callable,
+                        trueProbability:     npt.NDArray,
+                        rng:                 np.random.Generator,
+                        nInits:              int = 10,
                         ):
     '''
     This function simulates participants with different learning rates and then fits the data . This allows us to see if the model can recover the true learning rates.
@@ -240,7 +381,7 @@ def run_paramterer_recovery(
         generate_schedule(function): the function we use to generate a schedule
         trueProbability(float array): the reward probabilities
         rng(random number generator): the random number generator we use
-
+        nInits(int): the number of initial values to use
     Returns:
         recoveryData(dataframe): a dataframe containing the simulated and recovered parameters
     '''
@@ -272,31 +413,35 @@ def run_paramterer_recovery(
             probOpt1, choiceProb1 = simulate_RL_model(opt1RewardedMat[counter,:], magOpt1Mat[counter,:], magOpt2Mat[counter,:], simulatedAlphaRange[alpha], simulatedBetaRange[beta])
             choice1Mat[counter,:] = (choiceProb1 > rng.random(len(trueProbability))).astype(int)
 
-            # recoverdAlpha, recoveredBeta = fit_with_multiple_initial_values(opt1Rewarded, magOpt1, magOpt2, choice1, nInits = 100)
-
             # save the data of the current iteration
             recoveryData.loc[counter,"simulatedAlpha"] = simulatedAlphaRange[alpha]
             recoveryData.loc[counter,"simulatedBeta"]  = simulatedBetaRange[beta]
-            # recoveryData.loc[counter,"recoveredAlpha"] = recoverdAlpha
-            # recoveryData.loc[counter,"recoveredBeta"]  = recoveredBeta
 
             # increase the iteration counter
             counter += 1
-    params = fit_multiple_participants((opt1RewardedMat, magOpt1Mat, magOpt2Mat, choice1Mat))
+
+    params = fit_multiple_participants(
+       (opt1RewardedMat, 
+        magOpt1Mat, 
+        magOpt2Mat, 
+        choice1Mat),
+        nInits = nInits,
+        fit_model = fit_model_same_alpha)
     recoveryData["recoveredAlpha"] = params["alpha"]
     recoveryData["recoveredBeta"]  = params["beta"]
     return recoveryData
 
 
 def run_paramterer_recovery_with_difference(
-                stableAlphas,           
-                volatileAlphas,         
-                betas,                  
-                simulate_RL_model,      
-                generate_schedule,       
-                trueProbabilityStable,   
-                trueProbabilityVolatile, 
-                rng,
+                stableAlphas:            npt.NDArray,           
+                volatileAlphas:          npt.NDArray,         
+                betas:                   npt.NDArray,                  
+                simulate_RL_model:       Callable,      
+                generate_schedule:       Callable,       
+                trueProbabilityStable:   npt.NDArray,   
+                trueProbabilityVolatile: npt.NDArray, 
+                rng:                     np.random.Generator,
+                nInits:                  int = 10,
                 ):
     ''' 
     This function simulates participants with different learning rates in the stable and volatile conditions, and then fits the data with a model that assumes the same learning rate in both conditions. This allows us to see if the model can recover the true learning rates in the stable and volatile conditions.
@@ -310,7 +455,7 @@ def run_paramterer_recovery_with_difference(
         trueProbabilityStable(float array): the reward probabilities in the stable condition
         trueProbabilityVolatile(float array): the reward probabilities in the volatile condition
         rng(random number generator): the random number generator we use
-
+        nInits(int): the number of initial values to use
     Returns:
         fittedParameters(dataframe): a dataframe containing the recovered parameters
     '''
@@ -341,24 +486,24 @@ def run_paramterer_recovery_with_difference(
         probOpt1Stable,   choiceProb1Stable   = simulate_RL_model(opt1RewardedStableMat[p,:],   magOpt1StableMat[p,:],   magOpt2StableMat[p,:],   stableAlphas[p],   betas[p])
         probOpt1Volatile, choiceProb1Volatile = simulate_RL_model(opt1RewardedVolatileMat[p,:], magOpt1VolatileMat[p,:], magOpt2VolatileMat[p,:], volatileAlphas[p], betas[p])
         
+        # convert the choice probabilities to binary choices
         choice1StableMat[p,:]   = (choiceProb1Stable   > rng.random(len(opt1RewardedStableMat[p,:]))).astype(int)
         choice1VolatileMat[p,:] = (choiceProb1Volatile > rng.random(len(opt1RewardedVolatileMat[p,:]))).astype(int)
 
-        # create function to be minimized
-        # def min_fun(x):
-        #     LL1 = loglikelihood_RL_model(opt1RewardedStable, magOpt1Stable, magOpt2Stable, choice1Stable, logistic.cdf(x[0]), np.exp(x[2]))
-        #     LL2 = loglikelihood_RL_model(opt1RewardedVolatile, magOpt1Volatile, magOpt2Volatile, choice1Volatile, logistic.cdf(x[1]), np.exp(x[2]))
-        #     return -(LL1 + LL2)
-
-        # # fit the data of this simulated participant
-        # pars = minimize(min_fun, [0, 0, -1.5], method = method)
-
-        # fittedParameters.loc[p,"alpha stable"] = logistic.cdf(pars.x[0])
-        # fittedParameters.loc[p,"alpha volatile"] = logistic.cdf(pars.x[1])
-        # fittedParameters.loc[p,"inverse temperature"] = np.exp(pars.x[2])
-
-    params = fit_multiple_participants((opt1RewardedStableMat, magOpt1StableMat, magOpt2StableMat, choice1StableMat, opt1RewardedVolatileMat, magOpt1VolatileMat, magOpt2VolatileMat, choice1VolatileMat), fit_model = fit_model_alpha_difference)
+    params = fit_multiple_participants(
+      (opt1RewardedStableMat, 
+        magOpt1StableMat, 
+        magOpt2StableMat, 
+        choice1StableMat, 
+        opt1RewardedVolatileMat, 
+        magOpt1VolatileMat, 
+        magOpt2VolatileMat, 
+        choice1VolatileMat), 
+        nInits = nInits, 
+        fit_model = fit_model_alpha_difference)
+    
     fittedParameters["alpha stable"] = params["alphaStable"]
     fittedParameters["alpha volatile"] = params["alphaVolatile"]
     fittedParameters["inverse temperature"] = params["beta"]
+    
     return fittedParameters
