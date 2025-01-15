@@ -4,12 +4,6 @@ import numpy as np
 # pandas allows us to organise data as tables (called "dataframes")
 import pandas as pd
 
-# we use the minimize function from scipy to fit models
-from scipy.optimize import minimize
-
-# import the logistic function
-from scipy.stats import logistic
-
 # import jax (for fast vectorised operations) and optax (for optimizers)
 import jax
 import jax.numpy as jnp
@@ -17,7 +11,7 @@ import optax
 import optax.tree_utils as otu
 from functools import partial
 
-
+# import typing to define the types of the variables
 from typing import Tuple, Dict, Any, Callable, Optional, Union
 import numpy.typing as npt
 from jax._src.prng import PRNGKeyArray
@@ -28,10 +22,11 @@ def utility_fun(mag: jnp.ndarray, prob: jnp.ndarray) -> jnp.ndarray:
   return mag*prob
 
 @partial(jax.jit, static_argnames=['utility_function']) # this is a decorator that tells jax to compile the function and to use the utility_function as a static argument
-def loss_RL_model(data:             Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray],
-                  params:           Dict[str, jnp.ndarray],
-                  startingProb:     float = 0.5,
-                  utility_function: Callable = utility_fun) -> float:
+def loss_RL_model(
+  data:             Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray],
+  params:           Dict[str, jnp.ndarray],
+  startingProb:     float = 0.5,
+  utility_function: Callable = utility_fun) -> float:
     
     '''
     Returns the loss of the data given the choices and the model 
@@ -90,13 +85,14 @@ def loss_RL_model(data:             Tuple[npt.NDArray, npt.NDArray, npt.NDArray,
     
     return loss
 
-def run_opt(init_params: Dict[str, jnp.ndarray],
-            fun:         Callable,
-            opt:         optax.GradientTransformation = optax.lbfgs(),
-            max_iter:    int = 100,
-            tol:         float = 1e-3,
-            paramsClip:  Dict[str, float] = {'alphaMin': 0, 'alphaMax': 1, 'betaMin': 0, 'betaMax': 1}
-            ) -> Tuple[Dict[str, jnp.ndarray], Any]:
+def run_opt(
+    init_params: Dict[str, jnp.ndarray],
+    fun:         Callable,
+    opt:         optax.GradientTransformation = optax.lbfgs(),
+    max_iter:    int = 100,
+    tol:         float = 1e-3,
+    paramsClip:  Dict[str, float] = {'alphaMin': 0, 'alphaMax': 1, 'betaMin': 0, 'betaMax': 1}
+    ) -> Tuple[Dict[str, jnp.ndarray], Any]:
   '''
   Runs the optimization process. Based on https://optax.readthedocs.io/en/latest/_collections/examples/lbfgs.html
 
@@ -152,15 +148,16 @@ def run_opt(init_params: Dict[str, jnp.ndarray],
   return final_params, final_state
 
 @partial(jax.jit,static_argnames=['utility_function', 'opt'])
-def fit_model_same_alpha(data:            Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray],
-                        rng:              Optional[PRNGKeyArray] = None,
-                        startingProb:     float = 0.5,
-                        paramsClip:       Dict[str, float] = {'alphaMin': 0, 'alphaMax': 1, 'betaMin': 0, 'betaMax': 1},
-                        utility_function: Callable = utility_fun,
-                        opt:              optax.GradientTransformation = optax.lbfgs(),
-                        max_iter:         int = 100,
-                        tol:              float = 1e-3
-                        ) -> Tuple[Dict[str, jnp.ndarray], Any, float]:
+def fit_model_same_alpha(
+    data:            Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray],
+    rng:              Optional[PRNGKeyArray] = None,
+    startingProb:     float = 0.5,
+    paramsClip:       Dict[str, float] = {'alphaMin': 0, 'alphaMax': 1, 'betaMin': 0, 'betaMax': 1},
+    utility_function: Callable = utility_fun,
+    opt:              optax.GradientTransformation = optax.lbfgs(),
+    max_iter:         int = 100,
+    tol:              float = 1e-3
+    ) -> Tuple[Dict[str, jnp.ndarray], Any, float]:
     '''
     Fits the model with the same learning rate for both blocks
 
@@ -205,15 +202,16 @@ def fit_model_same_alpha(data:            Tuple[npt.NDArray, npt.NDArray, npt.ND
     return finalParams, finalState, finalLoss
 
 @partial(jax.jit,static_argnames=['utility_function', 'opt'])
-def fit_model_alpha_difference(data:           Tuple[npt.NDArray, ...],
-                             rng:              Optional[PRNGKeyArray] = None,
-                             startingProb:     float = 0.5,
-                             paramsClip:       Dict[str, float] = {'alphaMin': 0, 'alphaMax': 1, 'betaMin': 0, 'betaMax': 1},
-                             utility_function: Callable = utility_fun,
-                             opt:              optax.GradientTransformation = optax.lbfgs(),
-                             max_iter:         int = 100,
-                             tol:              float = 1e-3
-                             ) -> Tuple[Dict[str, jnp.ndarray], Any, float]:
+def fit_model_alpha_difference(
+    data:             Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray],
+    rng:              Optional[PRNGKeyArray] = None,
+    startingProb:     float = 0.5,
+    paramsClip:       Dict[str, float] = {'alphaMin': 0, 'alphaMax': 1, 'betaMin': 0, 'betaMax': 1},
+    utility_function: Callable = utility_fun,
+    opt:              optax.GradientTransformation = optax.lbfgs(),
+    max_iter:         int = 100,
+    tol:              float = 1e-3
+    ) -> Tuple[Dict[str, jnp.ndarray], Any, float]:
     '''
     Fits the model with different learning rates for the stable and volatile blocks
 
@@ -270,12 +268,13 @@ def fit_model_alpha_difference(data:           Tuple[npt.NDArray, ...],
     return finalParams, finalState, finalLoss
 
 @partial(jax.jit, static_argnames=['nInits', 'fit_model'])
-def fit_with_multiple_initial_values(data:    Union[Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray],
-                                                    Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray,
-                                                          npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray]],
-                                   nInits:    int = 10,
-                                   fit_model: Callable = fit_model_same_alpha
-                                   ) -> Dict[str, jnp.ndarray]:
+def fit_with_multiple_initial_values(
+    data:      Union[Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray],
+                     Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray,
+                           npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray]],
+    nInits:    int = 10,
+    fit_model: Callable = fit_model_same_alpha
+    ) -> Dict[str, jnp.ndarray]:
     '''
     Fits the model with multiple initial values
 
@@ -326,7 +325,7 @@ def fit_with_multiple_initial_values(data:    Union[Tuple[npt.NDArray, npt.NDArr
         Returns:
             bestParams(dict): the best fitting parameters
         '''
-        bestFit = jnp.argmin(loss)
+        bestFit = jnp.nanargmin(loss)
         if fit_model == fit_model_same_alpha:
           bestAlpha = params['alpha'][bestFit]
           bestBeta  = params['beta'][bestFit]
@@ -341,12 +340,13 @@ def fit_with_multiple_initial_values(data:    Union[Tuple[npt.NDArray, npt.NDArr
     return get_params(params, loss)
 
 @partial(jax.jit, static_argnames=['nInits', 'fit_model'])
-def fit_multiple_participants(data:    Union[Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray],
-                                             Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray,
-                                                   npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray]],
-                            nInits:    int = 10,
-                            fit_model: Callable = fit_model_same_alpha
-                            ) -> Dict[str, jnp.ndarray]:
+def fit_multiple_participants(
+  data:      Union[Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray],
+                   Tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray,
+                         npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray]],
+  nInits:    int = 10,
+  fit_model: Callable = fit_model_same_alpha
+  ) -> Dict[str, jnp.ndarray]:
     '''
     Fits the model with multiple participants
 
@@ -363,14 +363,14 @@ def fit_multiple_participants(data:    Union[Tuple[npt.NDArray, npt.NDArray, npt
     return params
 
 def run_paramterer_recovery(
-                        simulatedAlphaRange: npt.NDArray, 
-                        simulatedBetaRange:  npt.NDArray,
-                        simulate_RL_model:   Callable,
-                        generate_schedule:   Callable,
-                        trueProbability:     npt.NDArray,
-                        rng:                 np.random.Generator,
-                        nInits:              int = 10,
-                        ):
+    simulatedAlphaRange: npt.NDArray, 
+    simulatedBetaRange:  npt.NDArray,
+    simulate_RL_model:   Callable,
+    generate_schedule:   Callable,
+    trueProbability:     npt.NDArray,
+    rng:                 np.random.Generator,
+    nInits:              int = 10,
+    ):
     '''
     This function simulates participants with different learning rates and then fits the data . This allows us to see if the model can recover the true learning rates.
     
@@ -433,16 +433,16 @@ def run_paramterer_recovery(
 
 
 def run_paramterer_recovery_with_difference(
-                stableAlphas:            npt.NDArray,           
-                volatileAlphas:          npt.NDArray,         
-                betas:                   npt.NDArray,                  
-                simulate_RL_model:       Callable,      
-                generate_schedule:       Callable,       
-                trueProbabilityStable:   npt.NDArray,   
-                trueProbabilityVolatile: npt.NDArray, 
-                rng:                     np.random.Generator,
-                nInits:                  int = 10,
-                ):
+    stableAlphas:            npt.NDArray,           
+    volatileAlphas:          npt.NDArray,         
+    betas:                   npt.NDArray,                  
+    simulate_RL_model:       Callable,      
+    generate_schedule:       Callable,       
+    trueProbabilityStable:   npt.NDArray,   
+    trueProbabilityVolatile: npt.NDArray, 
+    rng:                     np.random.Generator,
+    nInits:                  int = 10,
+    ):
     ''' 
     This function simulates participants with different learning rates in the stable and volatile conditions, and then fits the data with a model that assumes the same learning rate in both conditions. This allows us to see if the model can recover the true learning rates in the stable and volatile conditions.
     
@@ -505,5 +505,5 @@ def run_paramterer_recovery_with_difference(
     fittedParameters["alpha stable"] = params["alphaStable"]
     fittedParameters["alpha volatile"] = params["alphaVolatile"]
     fittedParameters["inverse temperature"] = params["beta"]
-    
+
     return fittedParameters
