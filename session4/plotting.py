@@ -20,8 +20,7 @@ pio.templates.default = "none"
 import ipywidgets as widgets
 
 # import some custom functions we wrote
-from fitting import *
-from loading import *
+from session4 import fitting, loading
 
 
 def plot_schedule(ID, *df):
@@ -34,7 +33,7 @@ def plot_schedule(ID, *df):
 
   '''
 
-  trueProbability, choice1, magOpt1, magOpt2, opt1Rewarded = load_blain(ID)
+  trueProbability, choice1, magOpt1, magOpt2, opt1Rewarded = loading.load_blain(ID)
 
   # compute number of trials
   nTrials = len(opt1Rewarded)
@@ -53,33 +52,33 @@ def plot_schedule(ID, *df):
     if any(df[0].columns == 'alphaStable'):
         if any(df[0].columns == 'omega'):
             if ID < 37:
-                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alphaStable[ID],   df[0].beta[ID], df[0].omega[ID], utility_function = additive_utility)
-                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alphaVolatile[ID], df[0].beta[ID], df[0].omega[ID], utility_function = additive_utility)
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = fitting.simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alphaStable[ID],   df[0].beta[ID], df[0].omega[ID], utility_function = fitting.additive_utility)
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = fitting.simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alphaVolatile[ID], df[0].beta[ID], df[0].omega[ID], utility_function = fitting.additive_utility)
             else:
-                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alphaVolatile[ID], df[0].beta[ID], df[0].omega[ID], utility_function = additive_utility)
-                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alphaStable[ID],   df[0].beta[ID], df[0].omega[ID], utility_function = additive_utility)
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = fitting.simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alphaVolatile[ID], df[0].beta[ID], df[0].omega[ID], utility_function = fitting.additive_utility)
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = fitting.simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alphaStable[ID],   df[0].beta[ID], df[0].omega[ID], utility_function = fitting.additive_utility)
         else:
             if ID < 37:
-                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alphaStable[ID],   df[0].beta[ID])
-                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alphaVolatile[ID], df[0].beta[ID])
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = fitting.simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alphaStable[ID],   df[0].beta[ID])
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = fitting.simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alphaVolatile[ID], df[0].beta[ID])
             else:
-                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alphaVolatile[ID], df[0].beta[ID])
-                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alphaStable[ID],   df[0].beta[ID])
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = fitting.simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alphaVolatile[ID], df[0].beta[ID])
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = fitting.simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alphaStable[ID],   df[0].beta[ID])
     else:
         if any(df[0].columns == 'omega'):
             if ID < 37:
-                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alpha[ID], df[0].beta[ID], df[0].omega[ID], utility_function = additive_utility)
-                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alpha[ID], df[0].beta[ID], df[0].omega[ID], utility_function = additive_utility)
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = fitting.simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alpha[ID], df[0].beta[ID], df[0].omega[ID], utility_function = fitting.additive_utility)
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = fitting.simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alpha[ID], df[0].beta[ID], df[0].omega[ID], utility_function = fitting.additive_utility)
             else:
-                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alpha[ID], df[0].beta[ID], df[0].omega[ID], utility_function = additive_utility)
-                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alpha[ID], df[0].beta[ID], df[0].omega[ID], utility_function = additive_utility)
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = fitting.simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alpha[ID], df[0].beta[ID], df[0].omega[ID], utility_function = fitting.additive_utility)
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = fitting.simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alpha[ID], df[0].beta[ID], df[0].omega[ID], utility_function = fitting.additive_utility)
         else:
             if ID < 37:
-                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alpha[ID], df[0].beta[ID])
-                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alpha[ID], df[0].beta[ID])
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = fitting.simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alpha[ID], df[0].beta[ID])
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = fitting.simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alpha[ID], df[0].beta[ID])
             else:
-                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alpha[ID], df[0].beta[ID])
-                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alpha[ID], df[0].beta[ID])
+                _, probOpt1[0:80],   choiceProb1[0:80],   utility1[0:80],   utility2[0:80]   = fitting.simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   df[0].alpha[ID], df[0].beta[ID])
+                _, probOpt1[80:160], choiceProb1[80:160], utility1[80:160], utility2[80:160] = fitting.simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], df[0].alpha[ID], df[0].beta[ID])
 
 
   # plot trueProbability as a line
@@ -115,8 +114,8 @@ def plot_schedule(ID, *df):
         ))
 
   # get correct and incorrect choices
-  correct_choices = np.array([choice1[i] if (opt1Rewarded[i] and choice1[i]) or  (not opt1Rewarded[i] and not choice1[i]) else np.NAN for i in range(nTrials)])
-  incorrect_choices = np.array([choice1[i] if (opt1Rewarded[i] and not choice1[i]) or  (not opt1Rewarded[i] and choice1[i]) else np.NAN for i in range(nTrials)])
+  correct_choices = np.array([choice1[i] if (opt1Rewarded[i] and choice1[i]) or  (not opt1Rewarded[i] and not choice1[i]) else np.nan for i in range(nTrials)])
+  incorrect_choices = np.array([choice1[i] if (opt1Rewarded[i] and not choice1[i]) or  (not opt1Rewarded[i] and choice1[i]) else np.nan for i in range(nTrials)])
 
   # plot choices as a scatterplot
   fig.add_trace(
@@ -566,10 +565,10 @@ def plot_recovered_parameters(recoveryData):
 def visualise_LR_recovery(recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov2AlphaAdd, p = 0.05, degrees_of_freedom = 75):
   models=['multiplicative utility', 'additive utility']
   nReps = int((max(recov2AlphaAdd.ID)+1)/degrees_of_freedom)
-  p_recov1AlphaMul, _ = recov_chi2_test(recov1AlphaMul, degrees_of_freedom = degrees_of_freedom, nReps = nReps)
-  p_recov2AlphaMul, _ = recov_chi2_test(recov2AlphaMul, degrees_of_freedom = degrees_of_freedom, nReps = nReps)
-  _, p_recov1AlphaAdd = recov_chi2_test(recov1AlphaAdd, degrees_of_freedom = degrees_of_freedom, nReps = nReps)
-  _, p_recov2AlphaAdd = recov_chi2_test(recov2AlphaAdd, degrees_of_freedom = degrees_of_freedom, nReps = nReps)
+  p_recov1AlphaMul, _ = fitting.recov_chi2_test(recov1AlphaMul, degrees_of_freedom = degrees_of_freedom, nReps = nReps)
+  p_recov2AlphaMul, _ = fitting.recov_chi2_test(recov2AlphaMul, degrees_of_freedom = degrees_of_freedom, nReps = nReps)
+  _, p_recov1AlphaAdd = fitting.recov_chi2_test(recov1AlphaAdd, degrees_of_freedom = degrees_of_freedom, nReps = nReps)
+  _, p_recov2AlphaAdd = fitting.recov_chi2_test(recov2AlphaAdd, degrees_of_freedom = degrees_of_freedom, nReps = nReps)
   
 
   fig = go.Figure(data=[
@@ -582,10 +581,10 @@ def visualise_LR_recovery(recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov2
   
 def visualise_BIC_recovery(recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov2AlphaAdd, num_simulated_participants = 75, nReps = 100):
   BICs = np.vstack((
-      recov_BICs(recov1AlphaMul, num_simulated_participants = num_simulated_participants, nReps = nReps),
-      recov_BICs(recov2AlphaMul, num_simulated_participants = num_simulated_participants, nReps = nReps),
-      recov_BICs(recov1AlphaAdd, num_simulated_participants = num_simulated_participants, nReps = nReps),
-      recov_BICs(recov2AlphaAdd, num_simulated_participants = num_simulated_participants, nReps = nReps)))/nReps
+      fitting.recov_BICs(recov1AlphaMul, num_simulated_participants = num_simulated_participants, nReps = nReps),
+      fitting.recov_BICs(recov2AlphaMul, num_simulated_participants = num_simulated_participants, nReps = nReps),
+      fitting.recov_BICs(recov1AlphaAdd, num_simulated_participants = num_simulated_participants, nReps = nReps),
+      fitting.recov_BICs(recov2AlphaAdd, num_simulated_participants = num_simulated_participants, nReps = nReps)))/nReps
 
   labels = ['1 alpha, multiplicative utility','2 alphas, multiplicative utility', '1 alpha, additive utility', '2 alphas, additive utility']
   heat = go.Heatmap(z=BICs,
@@ -613,10 +612,10 @@ def visualise_BIC_recovery(recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov
 def visualise_t_test_recovery(recov1AlphaMul, recov2AlphaMul, recov1AlphaAdd, recov2AlphaAdd, p = 0.05, num_simulated_participants = 75):
   models=['multiplicative utility', 'additive utility']
   nReps = int((max(recov2AlphaAdd.ID)+1)/num_simulated_participants)
-  p_recov1AlphaMul, _ = recov_t_test(recov1AlphaMul, num_simulated_participants = num_simulated_participants, nReps = nReps)
-  p_recov2AlphaMul, _ = recov_t_test(recov2AlphaMul, num_simulated_participants = num_simulated_participants, nReps = nReps)
-  _, p_recov1AlphaAdd = recov_t_test(recov1AlphaAdd, num_simulated_participants = num_simulated_participants, nReps = nReps)
-  _, p_recov2AlphaAdd = recov_t_test(recov2AlphaAdd, num_simulated_participants = num_simulated_participants, nReps = nReps)
+  p_recov1AlphaMul, _ = fitting.recov_t_test(recov1AlphaMul, num_simulated_participants = num_simulated_participants, nReps = nReps)
+  p_recov2AlphaMul, _ = fitting.recov_t_test(recov2AlphaMul, num_simulated_participants = num_simulated_participants, nReps = nReps)
+  _, p_recov1AlphaAdd = fitting.recov_t_test(recov1AlphaAdd, num_simulated_participants = num_simulated_participants, nReps = nReps)
+  _, p_recov2AlphaAdd = fitting.recov_t_test(recov2AlphaAdd, num_simulated_participants = num_simulated_participants, nReps = nReps)
   
 
   fig = go.Figure(data=[

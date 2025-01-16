@@ -4,6 +4,8 @@ import numpy as np
 # pandas allows us to organise data as tables (called "dataframes")
 import pandas as pd
 
+from scipy.stats import logistic
+
 # import jax (for fast vectorised operations) and optax (for optimizers)
 import jax
 import jax.numpy as jnp
@@ -17,8 +19,6 @@ import numpy.typing as npt
 from jax._src.prng import PRNGKeyArray
 
 from session3 import loading
-
-from scipy.stats import logistic
 
 
 @jax.jit # this is a decorator that tells jax to compile the function
@@ -421,6 +421,7 @@ def fit_with_multiple_initial_values(
     
     params, _, loss = fit_model_vectorised(tiledData, initial_rngs)
 
+    # if startingParams is not None, we start one optimisation run from the supplied startingParams
     if startingParams is not None:
       paramsKnown, _, lossKnown = fit_model(data, utility_function = utility_function, paramsClip = paramsClip, startingParams = startingParams)
       
@@ -477,6 +478,22 @@ def fit_participant_data(
   rng:              Optional[np.random.Generator] = None,
   nInits:           int = 10,
   ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    '''
+    Fits the model to the data
+
+    Parameters:
+        utility_function(function): the utility function to use
+        simulate(bool): whether to simulate the data
+        alpha_S(array): the alpha values for the stable condition (if simulate is True)
+        alpha_V(array): the alpha values for the volatile condition (if simulate is True)
+        beta(array): the beta values (if simulate is True)
+        rng(generator): the random number generator
+        nInits(int): the number of initial values to use
+
+    Returns:
+        fitData1Alpha(dataframe): the fit data for the same alpha model
+        fitData2Alpha(dataframe): the fit data for the alpha difference model
+    '''
     
     numSubjects = 75
     numTrials = 160
@@ -521,6 +538,7 @@ def fit_participant_data(
       
       paramsClip = {'alphaMin': 0, 'alphaMax': 1, 'betaMin': 0, 'betaMax': 1, 'omegaMin': 0, 'omegaMax': 1}
 
+    # create matrices to store the data
     opt1RewardedStableMat = np.zeros((numSubjects, numTrials//2))
     magOpt1StableMat      = np.zeros((numSubjects, numTrials//2))
     magOpt2StableMat      = np.zeros((numSubjects, numTrials//2))
@@ -530,6 +548,7 @@ def fit_participant_data(
     magOpt1VolatileMat      = np.zeros((numSubjects, numTrials//2))
     magOpt2VolatileMat      = np.zeros((numSubjects, numTrials//2))
     choice1VolatileMat      = np.zeros((numSubjects, numTrials//2))
+
 
     for s in range(numSubjects):
       # load in data
@@ -567,9 +586,11 @@ def fit_participant_data(
     
     data = (opt1RewardedStableMat, magOpt1StableMat, magOpt2StableMat, choice1StableMat, opt1RewardedVolatileMat, magOpt1VolatileMat, magOpt2VolatileMat, choice1VolatileMat)
 
+    # fit the model assuming the same alpha for both conditions
     fit_model_vectorised_same_alpha = jax.vmap(partial(fit_with_multiple_initial_values, nInits = nInits, utility_function = utility_function, fit_model = fit_model_same_alpha, paramsClip = paramsClip))
     params_same_alpha, loss_same_alpha = fit_model_vectorised_same_alpha(data)
 
+    # fit the model assuming the alpha is different for the two conditions. Here we also start at one optimisation run from inital values based on the same alpha model
     if utility_function == multiplicative_utility:
       starting_params_alpha_difference = {'alphaStable': params_same_alpha['alpha'], 'alphaVolatile': params_same_alpha['alpha'], 'beta': params_same_alpha['beta']}
     elif utility_function == additive_utility:
@@ -615,7 +636,7 @@ def simulate_RL_model(
     magOpt2:      npt.NDArray,
     alpha:        float,
     beta:         float,
-    *additionalParameters,
+    omega:        float,
     startingProb = 0.5,
     utility_function = multiplicative_utility,
     rng = np.random.default_rng(12345)
@@ -633,8 +654,7 @@ def simulate_RL_model(
            trial
         alpha(float): fixed learning rate, greater than 0, less than/equal to 1
         beta(float): fixed inverse temperature, greater than 0
-        *additionalParameters(float, optional): other parameters to pass onto
-          the utility function, for example, the omega used in additive utility.
+        *omega(float, optional): omega used in additive utility
         startingProb(float): starting probability (defaults to 0.5).
         utility_function(function): what utility function to use to combine
           reward magnitude and probability. Defaults to multiplicative_utility
@@ -674,25 +694,25 @@ def simulate_RL_model(
   probOpt1[0] = startingProb
 
   for t in range(nTrials-1):
-        # calculate the utility of the two options. *additionalParameters would only be needed
+        # calculate the utility of the two options. *omega would only be needed
         # if the utility function has >2 inputs, which is not the case for multiplicative
         # utility.
-        utility1[t] = utility_function(magOpt1[t], probOpt1[t], *additionalParameters)
-        utility2[t] = utility_function(magOpt2[t], (1 - probOpt1[t]), *additionalParameters)
+        utility1[t] = utility_function(magOpt1[t], probOpt1[t], *omega)
+        utility2[t] = utility_function(magOpt2[t], (1 - probOpt1[t]), *omega)
 
         # get the probability of making choice 1
-        choiceProb1[t] = logistic.cdf((utility1[t]-utility2[t])* beta)
+        choiceProb1[t] = logistic.cdf((utility1[t]-utility2[t]) * beta)
 
         # calculate the prediction error
         delta[t] = opt1Rewarded[t] - probOpt1[t]
 
         # update the probability of option 1 being rewarded
-        probOpt1[t+1] = probOpt1[t] + alpha*delta[t]
+        probOpt1[t+1] = probOpt1[t] + alpha * delta[t]
   
   t = nTrials-1
-  utility1[t] = utility_function(magOpt1[t], probOpt1[t], *additionalParameters)
-  utility2[t] = utility_function(magOpt2[t], (1 - probOpt1[t]), *additionalParameters)
-  choiceProb1[t] = logistic.cdf((utility1[t]-utility2[t])* beta)
+  utility1[t] = utility_function(magOpt1[t], probOpt1[t], *omega)
+  utility2[t] = utility_function(magOpt2[t], (1 - probOpt1[t]), *omega)
+  choiceProb1[t] = logistic.cdf((utility1[t]-utility2[t]) * beta)
         
   choice1 = (choiceProb1 > rng.random(len(opt1Rewarded))).astype(int)
 
