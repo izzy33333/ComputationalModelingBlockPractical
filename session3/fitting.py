@@ -475,6 +475,7 @@ def fit_participant_data(
   alpha_S:          Optional[npt.NDArray] = None,
   alpha_V:          Optional[npt.NDArray] = None,
   beta:             Optional[npt.NDArray] = None,
+  omega:            Optional[npt.NDArray] = None,
   rng:              Optional[np.random.Generator] = None,
   nInits:           int = 10,
   ) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -487,6 +488,7 @@ def fit_participant_data(
         alpha_S(array): the alpha values for the stable condition (if simulate is True)
         alpha_V(array): the alpha values for the volatile condition (if simulate is True)
         beta(array): the beta values (if simulate is True)
+        omega(array): the omega values (if simulate is True)
         rng(generator): the random number generator
         nInits(int): the number of initial values to use
 
@@ -556,12 +558,21 @@ def fit_participant_data(
       
       if simulate:
         # simulate an artificial participant
-        if s < 37:
-          choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_S[s], beta[s], utility_function = utility_function, rng = rng)
-          choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_V[s], beta[s], utility_function = utility_function, rng = rng)
-        else:
-          choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_V[s], beta[s], utility_function = utility_function, rng = rng)
-          choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[s], beta[s], utility_function = utility_function, rng = rng)
+        if utility_function == multiplicative_utility:
+          if s < 37:
+            choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_S[s], beta[s], utility_function = utility_function, rng = rng)
+            choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_V[s], beta[s], utility_function = utility_function, rng = rng)
+          else:
+            choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_V[s], beta[s], utility_function = utility_function, rng = rng)
+            choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[s], beta[s], utility_function = utility_function, rng = rng)
+        elif utility_function == additive_utility:
+          if s < 37:
+            choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_S[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
+            choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_V[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
+          else:
+            choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_V[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
+            choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
+
 
       if s < 37:
         opt1RewardedStableMat[s, :] = opt1Rewarded[0:80]

@@ -488,6 +488,7 @@ def fit_participant_data(
   alpha_S:          Optional[npt.NDArray] = None,
   alpha_V:          Optional[npt.NDArray] = None,
   beta:             Optional[npt.NDArray] = None,
+  omega:            Optional[npt.NDArray] = None,
   rng:              Optional[np.random.Generator] = None,
   nInits:           int = 10,
   ) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -567,12 +568,20 @@ def fit_participant_data(
       
       if simulate:
         # simulate an artificial participant
-        if s < 37:
-          choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_S[s], beta[s], utility_function = utility_function, rng = rng)
-          choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_V[s], beta[s], utility_function = utility_function, rng = rng)
-        else:
-          choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_V[s], beta[s], utility_function = utility_function, rng = rng)
-          choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[s], beta[s], utility_function = utility_function, rng = rng)
+        if utility_function == multiplicative_utility:
+          if s < 37:
+            choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_S[s], beta[s], utility_function = utility_function, rng = rng)
+            choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_V[s], beta[s], utility_function = utility_function, rng = rng)
+          else:
+            choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_V[s], beta[s], utility_function = utility_function, rng = rng)
+            choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[s], beta[s], utility_function = utility_function, rng = rng)
+        elif utility_function == additive_utility:
+          if s < 37:
+            choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_S[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
+            choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_V[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
+          else:
+            choice1[0:80], _, _, _, _   = simulate_RL_model(opt1Rewarded[0:80],   magOpt1[0:80],   magOpt2[0:80],   alpha_V[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
+            choice1[80:160], _, _, _, _ = simulate_RL_model(opt1Rewarded[80:160], magOpt1[80:160], magOpt2[80:160], alpha_S[s], beta[s], omega[s], utility_function = utility_function, rng = rng)
 
       if s < 37:
         opt1RewardedStableMat[i, :] = opt1Rewarded[0:80]
@@ -653,15 +662,17 @@ def fit_participant_data(
 
     return fitData1AlphaMul, fitData2AlphaMul, fitData1AlphaAdd, fitData2AlphaAdd
 
-def simulate_RL_model(opt1Rewarded,
-                      magOpt1,
-                      magOpt2,
-                      alpha,
-                      beta,
-                      *additionalParameters,
-                      startingProb = 0.5,
-                      utility_function = multiplicative_utility,
-                      rng = np.random.default_rng(12345)):
+def simulate_RL_model(
+    opt1Rewarded: npt.NDArray,
+    magOpt1:      npt.NDArray,
+    magOpt2:      npt.NDArray,
+    alpha:        float,
+    beta:         float,
+    *omega:       float,
+    startingProb = 0.5,
+    utility_function = multiplicative_utility,
+    rng = np.random.default_rng(12345)
+    ):
   '''
   Returns how likely option 1 is rewarded on each trial, the probability of
   choosing option 1 on a trial, and a simulated choice for each trial
@@ -675,8 +686,7 @@ def simulate_RL_model(opt1Rewarded,
            trial
         alpha(float): fixed learning rate, greater than 0, less than/equal to 1
         beta(float): fixed inverse temperature, greater than 0
-        *additionalParameters(float, optional): other parameters to pass onto
-          the utility function, for example, the omega used in additive utility.
+        *omega(float): additional parameters for the utility function
         startingProb(float): starting probability (defaults to 0.5).
         utility_function(function): what utility function to use to combine
           reward magnitude and probability. Defaults to multiplicative_utility
@@ -716,11 +726,11 @@ def simulate_RL_model(opt1Rewarded,
   probOpt1[0] = startingProb
 
   for t in range(nTrials-1):
-        # calculate the utility of the two options. *additionalParameters would only be needed
+        # calculate the utility of the two options. *omega would only be needed
         # if the utility function has >2 inputs, which is not the case for multiplicative
         # utility.
-        utility1[t] = utility_function(magOpt1[t], probOpt1[t], *additionalParameters)
-        utility2[t] = utility_function(magOpt2[t], (1 - probOpt1[t]), *additionalParameters)
+        utility1[t] = utility_function(magOpt1[t], probOpt1[t], *omega)
+        utility2[t] = utility_function(magOpt2[t], (1 - probOpt1[t]), *omega)
 
         # get the probability of making choice 1
         choiceProb1[t] = logistic.cdf((utility1[t]-utility2[t])* beta)
@@ -732,8 +742,8 @@ def simulate_RL_model(opt1Rewarded,
         probOpt1[t+1] = probOpt1[t] + alpha*delta[t]
   
   t = nTrials-1
-  utility1[t] = utility_function(magOpt1[t], probOpt1[t], *additionalParameters)
-  utility2[t] = utility_function(magOpt2[t], (1 - probOpt1[t]), *additionalParameters)
+  utility1[t] = utility_function(magOpt1[t], probOpt1[t], *omega)
+  utility2[t] = utility_function(magOpt2[t], (1 - probOpt1[t]), *omega)
   choiceProb1[t] = logistic.cdf((utility1[t]-utility2[t])* beta)
         
   choice1 = (choiceProb1 > rng.random(len(opt1Rewarded))).astype(int)
