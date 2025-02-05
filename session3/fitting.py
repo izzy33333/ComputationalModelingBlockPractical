@@ -636,7 +636,7 @@ def simulate_RL_model(
     magOpt2:      npt.NDArray,
     alpha:        float,
     beta:         float,
-    omega:        float,
+    *omega:       float,
     startingProb = 0.5,
     utility_function = multiplicative_utility,
     rng = np.random.default_rng(12345)
